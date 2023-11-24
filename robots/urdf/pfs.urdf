@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot
+    name="pr2_fingertip_sensors">
+  <link name="base_link" />
+  <link
+    name="l_gripper_l_finger_tip_link">
+    <inertial>
+      <origin
+        xyz="-0.007 -0.002 0.013"
+        rpy="-1.5707963267948966 0 -1.5707963267948966" />
+      <mass
+        value="0.0711611664433979" />
+      <inertia
+        ixx="4.39073465936608E-05"
+        ixy="1.41079438324117E-05"
+        ixz="-4.74189208084904E-07"
+        iyy="5.8206720017937E-05"
+        iyz="2.02671311342142E-06"
+        izz="7.28463657446721E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="-0.007 -0.002 0.013"
+        rpy="-1.5707963267948966 0 -1.5707963267948966" />
+      <geometry>
+        <mesh
+          filename="package://pr2_fingertip_sensors/robots/meshes/circuit_mock.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://pr2_fingertip_sensors/robots/meshes/circuit_mock.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="l_gripper_l_finger_tip_link_joint"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="l_gripper_l_finger_tip_link" />
+    <axis
+      xyz="1 0 0" />
+  </joint>  
+  <link
+    name="l_gripper_r_finger_tip_link_flipped">
+    <inertial>
+      <origin
+        xyz="-0.007 -0.002 0.013"
+        rpy="-1.5707963267948966 0 -1.5707963267948966" />
+      <mass
+        value="0.0711611664433979" />
+      <inertia
+        ixx="4.39073465936608E-05"
+        ixy="1.41079438324117E-05"
+        ixz="-4.74189208084904E-07"
+        iyy="5.8206720017937E-05"
+        iyz="2.02671311342142E-06"
+        izz="7.28463657446721E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="-0.007 -0.002 0.013"
+        rpy="-1.5707963267948966 0 -1.5707963267948966" />
+      <geometry>
+        <mesh
+          filename="package://pr2_fingertip_sensors/robots/meshes/circuit_mock.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://pr2_fingertip_sensors/robots/meshes/circuit_mock.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="l_gripper_r_finger_tip_link_joint"
+    type="continuous">
+    <origin
+      xyz="0 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="l_gripper_r_finger_tip_link_flipped" />
+    <axis
+      xyz="1 0 0" />
+  </joint>  
+
+</robot>
