@@ -1,0 +1,12 @@
+<launch>
+
+  <!-- Load default pfs sensor params -->
+  <rosparam command="load" file="$(find pr2_fingertip_sensors)/data/pfs_params.yaml" />
+
+  <!-- Launch ROS nodes for pfs sensor calibration -->
+  <node name="parse_serial" pkg="pr2_fingertip_sensors" type="parse_serial.py"
+        output="screen" args="--port /dev/ttyACM0">
+    <remap from="/pfs/from_serial" to="/pfs/l_gripper/l_fingertip" />
+  </node>
+  <node name="calibrate_pfs" pkg="pr2_fingertip_sensors" type="calibrate_pfs.py" output="screen" />
+</launch>
