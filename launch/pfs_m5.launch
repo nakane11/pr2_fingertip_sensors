@@ -1,0 +1,47 @@
+<launch>
+  <arg name="publish_pfs_tf" default="true"
+       doc="Publish static tf for pfs sensors. If you use PR2's default urdf, set this value as true" />
+  <arg name="gui" default="true" doc="Launch RViz or not" />
+
+  <param
+      name="robot_description"
+      textfile="$(find pr2_fingertip_sensors)/robots/urdf/pfs.urdf" />
+  
+  <!-- Load rosparam for pfs sensor calibration -->
+  <rosparam command="load" file="$(find pr2_fingertip_sensors)/data/pfs_params.yaml" />
+
+  <!-- Launch nodes to get pfs data and to convert the data into proper ROS msg -->
+  <node name="rosserial_l_fingertip" pkg="rosserial_python" type="serial_node.py" output="screen" >
+    <remap from="/pfs/from_i2c/addr_0x01" to="/pfs/l_gripper/l_fingertip" />
+    <param name="port" value="/dev/ttyUSB0" />
+    <param name="baud" value="57600" />
+  </node>
+  
+  <node name="convert_pfs" pkg="pr2_fingertip_sensors" type="convert_pfs.py" output="screen" />
+
+  <!-- Publish transform from fingertip to each pfs board -->
+  <group if="$(arg publish_pfs_tf)">
+    <node pkg="tf" type="static_transform_publisher"
+          name="l_gripper_l_finger_tip_link_broadcaster"
+          args="0 0.05 0
+                0 -0.70710678 0 0.70710678
+                base_link
+                l_gripper_l_finger_tip_link
+                100" />
+    <node pkg="tf" type="static_transform_publisher"
+          name="l_gripper_r_finger_tip_link_broadcaster"
+          args="0 -0.05 0
+                0 -0.70710678 0 0.70710678
+                base_link
+                l_gripper_r_finger_tip_link
+                100" />
+    
+    <include file="$(find pr2_fingertip_sensors)/launch/pfs_l_gripper_transform_publisher.launch" />
+  </group>
+
+  <!-- RViz for PFS proximity and force sensors -->
+  <group if="$(arg gui)">
+    <node name="rviz" pkg="rviz" type="rviz"
+          args="-d $(find pr2_fingertip_sensors)/config/pfs.rviz" />
+  </group>
+</launch>
