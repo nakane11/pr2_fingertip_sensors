@@ -3,7 +3,7 @@
 from geometry_msgs.msg import WrenchStamped
 import math
 import rospy
-from pr2_fingertip_sensors.msg import PR2FingertipSensor
+from pr2_fingertip_sensors.msg import PR2FingertipSensor, ProximityDistanceArray
 from sensor_msgs.msg import Imu, PointCloud2, PointField
 import sensor_msgs.point_cloud2 as pc2
 from std_msgs.msg import Float32, Header
@@ -14,6 +14,7 @@ class ConvertPFS(object):
     Convert PR2FingertipSensor message into the following messages
     - proximity_cloud(sensor_msgs/PointCloud2), pointcloud calculated from each proximity sensor. One topic per proximity sensor.
     - proximity_distance(std_msgs/Float32), distance calculated from each proximity sensor. One topic per proximity sensor.
+    - proximity_distances(pr2_fingertip_sensors/ProximityDistanceArray), One topic for all proximity distances.
     - wrench(geometry_msgs/WrenchStamped), wrench value. One topic per PFS board.
     - force(geometry_msgs/WrenchStamped), calibrated force sensor value. One topic per force sensor.
     - imu(sensor_msgs/Imu), IMU value. One topic per PFS A board.
@@ -34,6 +35,9 @@ class ConvertPFS(object):
             for fingertip in self.fingertips:
                 # Publisher for proximity, force and imu
                 self.pub[gripper][fingertip] = {}
+                self.pub[gripper][fingertip]['proximity_distances'] = rospy.Publisher(
+                    '/pfs/{}/{}/proximity_distances'.format(gripper, fingertip),
+                    ProximityDistanceArray, queue_size=1)
                 for part in self.parts:
                     self.pub[gripper][fingertip][part] = {}
                     sensors = ['proximity_distance', 'proximity_cloud', 'wrench', 'force', 'imu']
@@ -146,6 +150,7 @@ class ConvertPFS(object):
         """
         header = Header()
         header.stamp = msg.header.stamp
+        dist_array = [10.0 for i in range(24)]
         for part in self.parts:
             frame_id_base = gripper + '_' + fingertip + '_' + part
             sensor_num = self.sensor_num(part)
@@ -157,11 +162,16 @@ class ConvertPFS(object):
                     msg.proximity[index], gripper, fingertip, part, i)
                 # Distance is under 0.1[m], it is regarded as reliable
                 if distance < 0.1:
+                    dist_array[index] = distance
                     dist_msg = Float32(data=distance)
                     self.pub[gripper][fingertip][part]['proximity_distance'][i].publish(dist_msg)
                     point = [0, 0, distance]
                     prox_msg = pc2.create_cloud(header, self.fields, [point])
                     self.pub[gripper][fingertip][part]['proximity_cloud'][i].publish(prox_msg)
+        header.frame_id = ''
+        dist_array_msg = ProximityDistanceArray(header=header)
+        dist_array_msg.distances = dist_array
+        self.pub[gripper][fingertip]['proximity_distances'].publish(dist_array_msg)
 
     def publish_force(self, msg, gripper, fingertip):
         """
