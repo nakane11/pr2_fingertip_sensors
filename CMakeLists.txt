@@ -9,6 +9,7 @@ catkin_python_setup()
 add_message_files(
   FILES
   PR2FingertipSensor.msg
+  ProximityDistanceArray.msg
   )
 
 generate_messages(
