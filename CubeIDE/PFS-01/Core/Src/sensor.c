@@ -494,6 +494,7 @@ void ps_init(I2C_HandleTypeDef *hi2c){
 				}
 			}
 			disable_mux(hi2c,PCA9547_ADDR_ARRAY[i]);
+			osDelay(1);
 		}
 		disable_all_mux(hi2c);
 		break;

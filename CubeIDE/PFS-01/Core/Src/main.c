@@ -61,8 +61,6 @@ DMA_HandleTypeDef hdma_spi1_tx;
 osThreadId ADCTaskHandle;
 osThreadId LEDTaskHandle;
 osThreadId PSTaskHandle;
-osThreadId IMUTaskHandle;
-osThreadId SLAVETaskHandle;
 /* USER CODE BEGIN PV */
 uint8_t rxbuff[1];
 uint8_t rxbuff_i2c[1];
@@ -81,8 +79,6 @@ static void MX_I2C2_Init(void);
 void StartADCTask(void const * argument);
 void StartLEDTask(void const * argument);
 void StartPSTask(void const * argument);
-void StartIMUTask(void const * argument);
-void StartSLAVETask(void const * argument);
 
 /* USER CODE BEGIN PFP */
 void mpuWrite(uint8_t, uint8_t);
@@ -174,6 +170,9 @@ int main(void)
   #if enable_i2c_slave
     HAL_I2C_Slave_Receive_DMA(&hi2c2, (uint8_t*)rxbuff_i2c, 1);
   #endif
+
+  //delay for interval from init to starting threads
+  osDelay(1);
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -204,14 +203,6 @@ int main(void)
   /* definition and creation of PSTask */
   osThreadDef(PSTask, StartPSTask, osPriorityIdle, 0, 128);
   PSTaskHandle = osThreadCreate(osThread(PSTask), NULL);
-
-  /* definition and creation of IMUTask */
-  osThreadDef(IMUTask, StartIMUTask, osPriorityIdle, 0, 128);
-  IMUTaskHandle = osThreadCreate(osThread(IMUTask), NULL);
-
-  /* definition and creation of SLAVETask */
-  osThreadDef(SLAVETask, StartSLAVETask, osPriorityIdle, 0, 128);
-  SLAVETaskHandle = osThreadCreate(osThread(SLAVETask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -787,60 +778,6 @@ void StartPSTask(void const * argument)
     osDelay(1);
   }
   /* USER CODE END StartPSTask */
-}
-
-/* USER CODE BEGIN Header_StartIMUTask */
-/**
-* @brief Function implementing the IMUTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartIMUTask */
-void StartIMUTask(void const * argument)
-{
-  /* USER CODE BEGIN StartIMUTask */
-  /* Infinite loop */
-  for(;;)
-  {
-	  imu_update(&hspi3);
-	  osDelay(1);
-  }
-  /* USER CODE END StartIMUTask */
-}
-
-/* USER CODE BEGIN Header_StartSLAVETask */
-/**
-* @brief Function implementing the SLAVETask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartSLAVETask */
-void StartSLAVETask(void const * argument)
-{
-  /* USER CODE BEGIN StartSLAVETask */
-  /* Infinite loop */
-  for(;;)
-  {
-     #if enable_uart_slave || enable_usb_slave
-	  txbuff_update();
-     #endif
-	 #if enable_uart_slave
-      HAL_UART_Transmit(&huart1,
-    		  (uint8_t *)sp.txbuff_state[sp.spi_slave_flag],
-			  TXBUFF_LENGTH,
-			  HAL_MAX_DELAY);
-	  printf("\r\n");
-	 #endif
-	 #if enable_usb_slave
-      while(CDC_Transmit_FS((uint8_t*)sp.txbuff_state[sp.spi_slave_flag], TXBUFF_LENGTH) == USBD_OK) {}
-      char buff[2] = "\r\n";
-      osDelay(1);
-      while(CDC_Transmit_FS((uint8_t*)buff, sizeof(buff)) == USBD_OK) {}
-      osDelay(1);
-	 #endif
-    osDelay(1);
-  }
-  /* USER CODE END StartSLAVETask */
 }
 
  /**
