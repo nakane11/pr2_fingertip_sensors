@@ -3,7 +3,7 @@
 from geometry_msgs.msg import WrenchStamped
 import math
 import rospy
-from pr2_fingertip_sensors.msg import PR2FingertipSensor, ProximityDistanceArray
+from pr2_fingertip_sensors.msg import PR2FingertipSensor, SensorArray
 from sensor_msgs.msg import Imu, PointCloud2, PointField
 import sensor_msgs.point_cloud2 as pc2
 from std_msgs.msg import Float32, Header
@@ -37,7 +37,10 @@ class ConvertPFS(object):
                 self.pub[gripper][fingertip] = {}
                 self.pub[gripper][fingertip]['proximity_distances'] = rospy.Publisher(
                     '/pfs/{}/{}/proximity_distances'.format(gripper, fingertip),
-                    ProximityDistanceArray, queue_size=1)
+                    SensorArray, queue_size=1)
+                self.pub[gripper][fingertip]['forces'] = rospy.Publisher(
+                    '/pfs/{}/{}/forces'.format(gripper, fingertip),
+                    SensorArray, queue_size=1)                
                 for part in self.parts:
                     self.pub[gripper][fingertip][part] = {}
                     sensors = ['proximity_distance', 'proximity_cloud', 'wrench', 'force', 'imu']
@@ -169,8 +172,8 @@ class ConvertPFS(object):
                     prox_msg = pc2.create_cloud(header, self.fields, [point])
                     self.pub[gripper][fingertip][part]['proximity_cloud'][i].publish(prox_msg)
         header.frame_id = ''
-        dist_array_msg = ProximityDistanceArray(header=header)
-        dist_array_msg.distances = dist_array
+        dist_array_msg = SensorArray(header=header)
+        dist_array_msg.data = dist_array
         self.pub[gripper][fingertip]['proximity_distances'].publish(dist_array_msg)
 
     def publish_force(self, msg, gripper, fingertip):
@@ -197,6 +200,7 @@ class ConvertPFS(object):
         """
         header = Header()
         header.stamp = msg.header.stamp
+        force_array = [0.0 for i in range(24)]
         for part in self.parts:
             frame_id_base = gripper + '_' + fingertip + '_' + part
             sensor_num = self.sensor_num(part)
@@ -213,6 +217,7 @@ class ConvertPFS(object):
                 force_msg.header = header
                 force_msg.wrench.force.z = force
                 self.pub[gripper][fingertip][part]['force'][i].publish(force_msg)
+                force_array[index] = force
                 average_force += force / float(sensor_num)
             # Publish force on each PFS board
             board_force_msg = WrenchStamped()
@@ -221,6 +226,9 @@ class ConvertPFS(object):
             board_force_msg.wrench.force.z = average_force
             self.pub[gripper][fingertip][part]['wrench'].publish(
                 board_force_msg)
+        force_array_msg = SensorArray(header=header)
+        force_array_msg.data = force_array
+        self.pub[gripper][fingertip]['forces'].publish(force_array_msg)
 
     def publish_imu(self, msg, gripper, fingertip):
         """
