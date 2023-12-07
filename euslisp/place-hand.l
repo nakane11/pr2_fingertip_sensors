@@ -85,18 +85,18 @@
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3500 :rarm-controller 0 :minjerk-interpolation t))
 
 
+;; sample
 (load "models/arrow-object.l")
 (pr2-init)
-(pr2-tuckarm-pose :free-arm :rarm)
+;; (pr2-tuckarm-pose :free-arm :rarm)
+(send *pr2* :torso_lift_joint :joint-angle 182)
 (rarm-init-pose)
 (unix::sleep 4)
-(setq *a* (arrow))
+;; 手の上に移動
 (look-at-hand)
 (setq target (search-hand 15))
+(setq *a* (arrow))
 (send *a* :newcoords target)
 (unless (null target)
   (look-at-front :wait nil)
   (place-hand target))
-
-
-
