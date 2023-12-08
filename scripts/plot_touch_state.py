@@ -40,17 +40,9 @@ N = 10
 m = 4
 d = 2
 for column_name, item in df_data_r.iteritems():
-    # x_, y_ = np.array(SG(x, item, N, m, d))
-    # print(x_.shape)
-    # print(y_.shape)
     plt.plot(*SG(x, item, N, m, d), label=column_name)
 plt.hlines(y=0, xmin=0, xmax=250)
-df_label_r = df_label.replace({'release':0, 'touch':0.1})
-df_label_r.plot()
+df_label_r = df_label.replace({'release':0, 'touch':0.004}).values
+plt.plot(x, df_label_r, lw=5)
 plt.legend()
 plt.show()
-
-
-
-# plt.plot(x_, y_)
-# plt.show()
