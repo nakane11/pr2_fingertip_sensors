@@ -53,6 +53,7 @@
           (return))
         (unless (null hand-pose-array)
           (dolist (hand-pose hand-pose-array)
+            ;; TODO: if more than one hand is detected, choose the closer one
             (let ((finger-poses (send hand-pose :poses)))
               (when (> (length finger-poses) 5)
                 (setq hand-coords (calc-hand-coords finger-poses))
@@ -64,11 +65,8 @@
     (ros::unsubscribe topic-name)
     target-coords))
 
-(defun place-hand (tgt)
-  (setq ik-tgt (send (send tgt :copy-worldcoords) :translate #f(0 0 250) :world))
-  (setq *b* (arrow))
-  (send *b* :newcoords ik-tgt)
-  (objects (list *pr2* *a* *b*))
+(defun place-hand (tgt offset)
+  (setq ik-tgt (send (send tgt :copy-worldcoords) :translate (float-vector 0 0 offset) :world))
   (when (null (send *pr2* :rarm :inverse-kinematics ik-tgt :rotation-axis :z))
     (return-from place-hand nil))
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3500 :rarm-controller 0 :minjerk-interpolation t)
@@ -83,20 +81,3 @@
   ;; (send *pr2* :r_wrist_roll_joint :joint-angle 350)
   (send *pr2* :r_wrist_flex_joint :joint-angle -72.37)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 3500 :rarm-controller 0 :minjerk-interpolation t))
-
-
-;; sample
-(load "models/arrow-object.l")
-(pr2-init)
-;; (pr2-tuckarm-pose :free-arm :rarm)
-(send *pr2* :torso_lift_joint :joint-angle 182)
-(rarm-init-pose)
-(unix::sleep 4)
-;; 手の上に移動
-(look-at-hand)
-(setq target (search-hand 15))
-(setq *a* (arrow))
-(send *a* :newcoords target)
-(unless (null target)
-  (look-at-front :wait nil)
-  (place-hand target))

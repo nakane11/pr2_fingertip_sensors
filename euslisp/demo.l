@@ -1,0 +1,22 @@
+(load "models/arrow-object.l")
+(load "package://pr2_fingertip_sensors/euslisp/place-hand.l")
+(load "package://pr2_fingertip_sensors/euslisp/touch-hand.l")
+
+(ros::roseus "demo")
+(pr2-init)
+(pr2-tuckarm-pose :free-arm :rarm)
+(send *pr2* :torso_lift_joint :joint-angle 182)
+(rarm-init-pose)
+(unix::sleep 4)
+
+(look-at-hand)
+(setq target (search-hand 15))
+(setq *a* (arrow))
+(send *a* :newcoords target)
+(objects (list *pr2* *a*))
+
+(unless (null target)
+  (look-at-front :wait nil)
+  (place-hand target 250)
+  (touch-hand 250)
+  )
