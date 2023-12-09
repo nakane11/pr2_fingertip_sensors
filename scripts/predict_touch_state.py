@@ -6,6 +6,7 @@ import rospy
 import message_filters
 from pr2_fingertip_sensors.msg import SensorArray
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Bool
 
 class Predict(object):
     def __init__(self):
@@ -13,6 +14,7 @@ class Predict(object):
         self.model = pickle.load(open(filename, 'rb'))
         self.gripper = 'r_gripper'
         self.fingertips = ['l_fingertip', 'r_fingertip']
+        self.pub = rospy.Publisher('touch_status', Bool, queue_size=1)
         self.subs = []
         for fingertip in self.fingertips:
             sensor_sub = message_filters.Subscriber(
@@ -36,9 +38,12 @@ class Predict(object):
         input_array = np.append(input_array, joint_msg.position[idx]).reshape(1, -1)
         label = self.model.predict(input_array)
         if label == 'release':
+            self.pub.publish(Bool(data=False))
             rospy.loginfo(label)
         else:
+            self.pub.publish(Bool(data=True))
             rospy.logwarn(label)
+
 if __name__ == '__main__':
     rospy.init_node('predict')
     pr = Predict()
