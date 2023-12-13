@@ -3,16 +3,6 @@ import numpy as np
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import train_test_split
-
-def SG(x, y, N, m, d=0):
-    dx = x[1] - x[0]
-    X = (np.c_[-N:N+1] * dx) ** np.r_[:m+1]
-    C = np.linalg.pinv(X) # (X.T X)^-1 X.T
-    x_ = x[N:-N]
-    y_ = np.convolve(y[::-1], C[d], 'valid')[::-1]
-    return x_, y_
 
 filepath = "/home/nakane/Documents/20231207_225405_r_gripper_vertical.csv"
 df = pd.read_csv(filepath)
@@ -33,22 +23,11 @@ df_data = df[[# 'l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
 df_label = df[['label']]
 df_data_r = df_data.replace({10:0.1})
 
-# dx = 1
-# x = np.r_[0:249+dx:dx]
-# print(x.shape)
-# N = 10
-# m = 4
-# d = 2
 N=df.shape[0]
 dt = 1/10
 for column_name, item in df_data_r.iteritems():
     y_fft = np.fft.fft(item)
     freq = np.fft.fftfreq(N, d=dt)
     Amp = abs(y_fft/(N/2))
-    # plt.plot(*SG(x, item, N, m, d), label=column_name)
     plt.plot(freq[1:int(N/2)], Amp[1:int(N/2)]) 
-# plt.hlines(y=0, xmin=0, xmax=250)
-# df_label_r = df_label.replace({'release':0, 'touch':0.004}).values
-# plt.plot(x, df_label_r, lw=5)
-# plt.legend()
 plt.show()
