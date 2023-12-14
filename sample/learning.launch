@@ -1,0 +1,48 @@
+<launch>
+  <arg name="model" value="$(find pr2_description)/robots/pr2.urdf.xacro" />
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+  <param name="use_sim_time" value="true" />
+
+  <!-- Play rosbag including /pressure/{l or r}_gripper_motor topics -->
+  <node name="play_pfs" pkg="rosbag" type="play"
+        args="--clock --loop /home/nakane/20231214-touch-2.bag" />
+
+  <!-- Launch pfs.launch -->
+  <include file="$(find pr2_fingertip_sensors)/launch/pfs.launch">
+    <arg name="publish_pfs_tf" value="true" />
+    <arg name="gui" value="true" />
+  </include>
+
+  <node name="boolean_node_checking_conditions_r_fingertip"
+        pkg="jsk_topic_tools" type="boolean_node.py"
+        clear_params="true" >
+    <remap from="~input1" to="/pfs/r_gripper/r_fingertip/pfs_b_top/force/0" />
+    <remap from="~input2" to="/pfs/r_gripper/r_fingertip/pfs_b_top/force/1" />
+    <remap from="~input3" to="/pfs/r_gripper/r_fingertip/pfs_b_top/force/2" />
+    <remap from="~input4" to="/pfs/r_gripper/r_fingertip/pfs_b_top/force/3" />
+    <rosparam>
+      number_of_input: 4
+      input1_condition: "m.wrench.force.z &gt; 0.3"
+      input2_condition: "m.wrench.force.z &gt; 0.3"
+      input3_condition: "m.wrench.force.z &gt; 0.3"
+      input4_condition: "m.wrench.force.z &gt; 0.9"
+    </rosparam>
+  </node>  
+
+  <node name="boolean_node_checking_conditions_l_fingertip"
+        pkg="jsk_topic_tools" type="boolean_node.py"
+        clear_params="true" >
+    <remap from="~input1" to="/pfs/r_gripper/l_fingertip/pfs_b_top/force/0" />
+    <remap from="~input2" to="/pfs/r_gripper/l_fingertip/pfs_b_top/force/1" />
+    <remap from="~input3" to="/pfs/r_gripper/l_fingertip/pfs_b_top/force/2" />
+    <remap from="~input4" to="/pfs/r_gripper/l_fingertip/pfs_b_top/force/3" />
+    <rosparam>
+      number_of_input: 4
+      input1_condition: "m.wrench.force.z &gt; 0.0"
+      input2_condition: "m.wrench.force.z &gt; 2.0"
+      input3_condition: "m.wrench.force.z &gt; 2.0"
+      input4_condition: "m.wrench.force.z &gt; 1.0"
+    </rosparam>
+  </node>  
+  
+</launch>
