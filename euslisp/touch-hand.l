@@ -32,7 +32,7 @@
     (ros::unsubscribe (format nil "~A/result" controller-name))
     ))
 
-(defun stroke-hand()
+(defun stroke-horizontal()
   (setq target-coords (send (send *pr2* :rarm :end-coords :copy-worldcoords) :translate (float-vector 0 0 30) :local))
   (send *pr2* :rarm :inverse-kinematics target-coords)
   (send *ri* :angle-vector (send *pr2* :angle-vector) 2000 :rarm-controller 0 :minjerk-interpolation t)
