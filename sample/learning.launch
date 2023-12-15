@@ -5,7 +5,7 @@
 
   <!-- Play rosbag including /pressure/{l or r}_gripper_motor topics -->
   <node name="play_pfs" pkg="rosbag" type="play"
-        args="--clock --loop --duration 10 /home/nakane/20231214-touch-2.bag" />
+        args="--clock --loop /home/nakane/20231214-touch-2.bag" />
 
   <!-- Launch pfs.launch -->
   <include file="$(find pr2_fingertip_sensors)/launch/pfs.launch">
@@ -28,7 +28,7 @@
       input3_condition: "m.wrench.force.z &gt; 0.3"
       input4_condition: "m.wrench.force.z &gt; 0.9"
     </rosparam>
-  </node>  
+  </node>
 
   <node name="boolean_node_checking_conditions_l_fingertip"
         pkg="jsk_topic_tools" type="boolean_node.py"
@@ -45,6 +45,9 @@
       input3_condition: "m.wrench.force.z &gt; 2.0"
       input4_condition: "m.wrench.force.z &gt; 1.0"
     </rosparam>
-  </node>  
-  
+  </node>
+
+  <node name="proximity_derivative" pkg="pr2_fingertip_sensors"
+        type="proximity_derivative.py" />
+
 </launch>
