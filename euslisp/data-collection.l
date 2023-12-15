@@ -22,5 +22,5 @@
 (send *pr2* :rarm :inverse-kinematics target-coords)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1000 :rarm-controller 0 :minjerk-interpolation t)
 (dotimes (i 10)
-  (stroke-hand)
+  (stroke-vertical)
   (ros::ros-info "~A" i))
