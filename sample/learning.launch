@@ -5,7 +5,7 @@
 
   <!-- Play rosbag including /pressure/{l or r}_gripper_motor topics -->
   <node name="play_pfs" pkg="rosbag" type="play"
-        args="--clock --loop /home/nakane/20231214-touch-2.bag" />
+        args="--clock /home/nakane/20231214-touch-2.bag" />
 
   <!-- Launch pfs.launch -->
   <include file="$(find pr2_fingertip_sensors)/launch/pfs.launch">
@@ -23,10 +23,10 @@
     <rosparam>
       reset: True
       number_of_input: 4
-      input1_condition: "m.wrench.force.z &gt; 0.3"
+      input1_condition: "m.wrench.force.z &gt; -1.0"
       input2_condition: "m.wrench.force.z &gt; 0.3"
       input3_condition: "m.wrench.force.z &gt; 0.3"
-      input4_condition: "m.wrench.force.z &gt; 0.9"
+      input4_condition: "m.wrench.force.z &gt; 0.9 or m.wrench.force.z &lt; -0.2"
     </rosparam>
   </node>
 
@@ -40,14 +40,20 @@
     <rosparam>
       reset: True
       number_of_input: 4
-      input1_condition: "m.wrench.force.z &gt; 0.0"
+      input1_condition: "m.wrench.force.z &gt; -3.0"
       input2_condition: "m.wrench.force.z &gt; 2.0"
-      input3_condition: "m.wrench.force.z &gt; 2.0"
+      input3_condition: "m.wrench.force.z &gt; -1.5 or m.wrench.force.z &lt; -3.5"
       input4_condition: "m.wrench.force.z &gt; 1.0"
     </rosparam>
   </node>
 
   <node name="proximity_derivative" pkg="pr2_fingertip_sensors"
         type="proximity_derivative.py" />
+
+  <node name="proximity_derivative_ma" pkg="pr2_fingertip_sensors"
+        type="proximity_derivative_ma.py" />
+
+  <node name="save_data_with_force_trigger" pkg="pr2_fingertip_sensors"
+        type="save_data_with_force_trigger.py" output="screen" />
 
 </launch>
