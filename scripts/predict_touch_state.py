@@ -1,18 +1,24 @@
 #!/usr/bin/env python
 
-import yaml
+# import yaml
+import os
 import numpy as np
 import pickle
 import rospy
+import rospkg
 from pr2_fingertip_sensors.msg import SensorArray
 from std_msgs.msg import Bool
 
-with open('/home/nakane/ros/pr2_fingertip_ws/src/pr2_fingertip_sensors/data/pfs_params.yaml', 'r') as yml:
-    pfs_params = yaml.safe_load(yml)
+# with open('/home/nakane/ros/pr2_fingertip_ws/src/pr2_fingertip_sensors/data/pfs_params.yaml', 'r') as yml:
+#     pfs_params = yaml.safe_load(yml)
+
+rospack = rospkg.RosPack()
+package_path = rospack.get_path('pr2_fingertip_sensors')
+model_name = 'data/100_logistic_adam_0001.sav'
 
 class Predict(object):
     def __init__(self):
-        filename = 'data/100_logistic_adam_0001.sav'
+        filename = os.path.join(package_path, model_name)
         self.model = pickle.load(open(filename, 'rb'))
         self.gripper = 'r_gripper'
         self.fingertips = ['l_fingertip']
