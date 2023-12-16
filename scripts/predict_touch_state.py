@@ -1,47 +1,36 @@
 #!/usr/bin/env python
 
+import yaml
 import numpy as np
 import pickle
 import rospy
-import message_filters
 from pr2_fingertip_sensors.msg import SensorArray
-from sensor_msgs.msg import JointState
 from std_msgs.msg import Bool
+
+with open('/home/nakane/ros/pr2_fingertip_ws/src/pr2_fingertip_sensors/data/pfs_params.yaml', 'r') as yml:
+    pfs_params = yaml.safe_load(yml)
 
 class Predict(object):
     def __init__(self):
-        filename = 'data/100_tanh_lbfgs_0001_r_gripper.sav'
+        filename = 'data/100_logistic_adam_0001.sav'
         self.model = pickle.load(open(filename, 'rb'))
         self.gripper = 'r_gripper'
-        self.fingertips = ['l_fingertip', 'r_fingertip']
+        self.fingertips = ['l_fingertip']
         self.pub = rospy.Publisher('touch_status', Bool, queue_size=1)
-        self.subs = []
+        self.subs = {}
         for fingertip in self.fingertips:
-            sensor_sub = message_filters.Subscriber(
-                '/pfs/{}/{}/proximity_distances'.format(self.gripper, fingertip),
-                SensorArray)
-            self.subs.append(sensor_sub)
-        joint_sub = message_filters.Subscriber(
-            '/joint_states', JointState)
-        self.subs.append(joint_sub)
-        sync = message_filters.ApproximateTimeSynchronizer(
-                self.subs, queue_size=10, slop=0.1)
-        sync.registerCallback(self.cb)
+            self.subs[fingertip] = rospy.Subscriber(
+                '/pfs/{}/{}/proximity_derivative_ma'.format(self.gripper, fingertip),
+                SensorArray, self.cb, fingertip, queue_size=10)
 
-    def cb(self, l_msg, r_msg, joint_msg):
-        if not 'r_gripper_joint' in joint_msg.name:
-            return
-        idx = joint_msg.name.index('r_gripper_joint')
-        l_data = np.array(l_msg.data, ndmin=2)
-        r_data = np.array(r_msg.data, ndmin=2)
-        input_array = np.concatenate([l_data, r_data], 1)
-        input_array = np.append(input_array, joint_msg.position[idx]).reshape(1, -1)
+    def cb(self, msg, fingertip):
+        input_array = np.array(msg.data).reshape(1, -1)# /pfs_params['pfs']['r_gripper']['l_fingertip']['proximity_a'][8:12]
         label = self.model.predict(input_array)
-        if label == 'release':
-            self.pub.publish(Bool(data=False))
+        if label == '0':
             rospy.loginfo(label)
-        else:
-            self.pub.publish(Bool(data=True))
+        elif label == 'T':
+            rospy.logerr(label)
+        elif label == 'R':
             rospy.logwarn(label)
 
 if __name__ == '__main__':
