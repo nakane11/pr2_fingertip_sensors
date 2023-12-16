@@ -16,7 +16,7 @@ def SG(x, y, N, m, d=0):
 
 filepath = "/home/nakane/Documents/20231207_225405_r_gripper_vertical.csv"
 df = pd.read_csv(filepath)
-df = df.iloc[:,:]
+df = df.iloc[:500,:]
 df_data = df[[# 'l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
               # 'l_prox_4', 'l_prox_5', 'l_prox_6', 'l_prox_7',
               'l_prox_8', 'l_prox_9', 'l_prox_10', 'l_prox_11',
@@ -33,22 +33,18 @@ df_data = df[[# 'l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
 df_label = df[['label']]
 df_data_r = df_data.replace({10:0.1})
 
-# dx = 1
-# x = np.r_[0:249+dx:dx]
-# print(x.shape)
-# N = 10
-# m = 4
-# d = 2
-N=df.shape[0]
-dt = 1/10
-for column_name, item in df_data_r.iteritems():
-    y_fft = np.fft.fft(item)
-    freq = np.fft.fftfreq(N, d=dt)
-    Amp = abs(y_fft/(N/2))
-    # plt.plot(*SG(x, item, N, m, d), label=column_name)
-    plt.plot(freq[1:int(N/2)], Amp[1:int(N/2)]) 
-# plt.hlines(y=0, xmin=0, xmax=250)
-# df_label_r = df_label.replace({'release':0, 'touch':0.004}).values
-# plt.plot(x, df_label_r, lw=5)
-# plt.legend()
+dx = 1
+x = np.r_[0:(df.shape[0]-1)+dx:dx]
+print(x.shape)
+N = 15
+m = 4
+d = 0
+df_roll = df_data_r.rolling(15).mean()
+# for column_name, item in df_data_r.iteritems():
+#     plt.plot(x, np.rolling(15).mean(item), label=column_name)
+df_roll.plot()
+plt.hlines(y=0, xmin=0, xmax=df.shape[0])
+df_label_r = df_label.replace({'release':0, 'touch':0.1}).values
+plt.plot(x, df_label_r, lw=5)
+plt.legend()
 plt.show()
