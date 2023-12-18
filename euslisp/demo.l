@@ -6,10 +6,11 @@
 (pr2-init)
 (pr2-tuckarm-pose :free-arm :rarm)
 (send *pr2* :torso_lift_joint :joint-angle 182)
+(send *ri* :angle-vector (send *pr2* :angle-vector) 1500 :torso-controller 0 :minjerk-interpolation t))
 (rarm-init-pose)
-(unix::sleep 4)
+(unix::sleep 10)
 
-(look-at-hand)
+(look-at-hand :wait nil)
 (setq target (search-hand 15))
 (setq *a* (arrow))
 (send *a* :newcoords target)
@@ -17,6 +18,7 @@
 
 (unless (null target)
   (look-at-front :wait nil)
-  (place-hand target 250)
+(place-hand target 250)
+;; (unix::sleep 4)
   (touch-hand 250)
   )
