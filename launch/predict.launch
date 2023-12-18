@@ -46,6 +46,16 @@
         type="proximity_derivative_ma.py" />
 
   <node name="predict_touch_state" pkg="pr2_fingertip_sensors"
-        type="predict_touch_state.py" output='screen'/>  
+        type="predict_touch_state.py" />
+
+  <node name="overlay_text_l_fingertip" pkg="pr2_fingertip_sensors"
+        type="overlay_text.py" >
+    <remap from="~input" to="/pfs/r_gripper/l_fingertip/touch_status" />
+  </node>
+
+  <node name="overlay_text_r_fingertip" pkg="pr2_fingertip_sensors"
+        type="overlay_text.py" >
+    <remap from="~input" to="/pfs/r_gripper/r_fingertip/touch_status" />
+  </node>
 
 </launch>
