@@ -1,0 +1,44 @@
+<launch>
+  <node pkg="usb_cam" type="usb_cam_node" name="usb_cam">
+    <rosparam subst_value="true">
+      video_device: /dev/video2
+    </rosparam>
+  </node>
+  
+  <include file="$(find pr2_fingertip_sensors)/launch/pfs.launch" />
+
+  <node name="boolean_node_checking_conditions_r_fingertip"
+        pkg="jsk_topic_tools" type="boolean_node.py"
+        clear_params="true" >
+    <remap from="~input1" to="/pfs/r_gripper/r_fingertip/pfs_b_top/force/0" />
+    <remap from="~input2" to="/pfs/r_gripper/r_fingertip/pfs_b_top/force/1" />
+    <remap from="~input3" to="/pfs/r_gripper/r_fingertip/pfs_b_top/force/2" />
+    <remap from="~input4" to="/pfs/r_gripper/r_fingertip/pfs_b_top/force/3" />
+    <rosparam>
+      reset: True
+      number_of_input: 4
+      input1_condition: "m.wrench.force.z &gt; 0"
+      input2_condition: "m.wrench.force.z &gt; -10"
+      input3_condition: "m.wrench.force.z &gt; -9"
+      input4_condition: "m.wrench.force.z &gt; 3.0"
+    </rosparam>
+  </node>  
+
+  <node name="boolean_node_checking_conditions_l_fingertip"
+        pkg="jsk_topic_tools" type="boolean_node.py"
+        clear_params="true" >
+    <remap from="~input1" to="/pfs/r_gripper/l_fingertip/pfs_b_top/force/0" />
+    <remap from="~input2" to="/pfs/r_gripper/l_fingertip/pfs_b_top/force/1" />
+    <remap from="~input3" to="/pfs/r_gripper/l_fingertip/pfs_b_top/force/2" />
+    <remap from="~input4" to="/pfs/r_gripper/l_fingertip/pfs_b_top/force/3" />
+    <rosparam>
+      reset: True
+      number_of_input: 4
+      input1_condition: "m.wrench.force.z &gt; 0.0"
+      input2_condition: "m.wrench.force.z &gt; 4.0"
+      input3_condition: "m.wrench.force.z &gt; 3.0"
+      input4_condition: "m.wrench.force.z &gt; 3.0"
+    </rosparam>
+  </node>  
+  
+</launch>
