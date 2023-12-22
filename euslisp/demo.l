@@ -18,7 +18,7 @@
 
 (unless (null target)
   (look-at-front :wait nil)
-(place-hand target 250)
-;; (unix::sleep 4)
+  (place-hand target 250)
   (touch-hand 250)
+  (stroke-horizontal)
   )
