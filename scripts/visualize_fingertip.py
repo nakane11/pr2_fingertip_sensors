@@ -9,7 +9,7 @@ colors = {'red':[[255,0,0,255]],
           'green':[[0,255,0,255]],
           'blue':[[0,0,255,255]],
           'gray':[[100,100,100,255]],
-          'base':[[200,200,200,50]]}
+          'base':[[100,100,100,80]]}
 boards = ['front', 'top', 'back', 'left', 'right']
 fingertips = ['l_fingertip', 'r_fingertip']
 

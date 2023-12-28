@@ -9,7 +9,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import f1_score
 
-filepath = "/home/nakane/Documents/20231224_222504_r_gripper.csv"
+filepath = "/home/nakane/Documents/20231228_114431_r_gripper.csv"
 df = pd.read_csv(filepath)
 columns = ['l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
               'l_prox_4', 'l_prox_5', 'l_prox_6', 'l_prox_7', 'l_prox_8', 'l_prox_9',
@@ -22,6 +22,8 @@ columns = ['l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
               'r_prox_18', 'r_prox_19', 'r_prox_20', 'r_prox_21', 'r_prox_22',
               'r_prox_23']
 df_data = df[columns].values
+largest_val = np.partition(np.unique(df_data).flatten(), -2)[-2]
+df_data = np.where(df_data == 10.0, round(largest_val*1.1, 3), df_data)
 le = LabelEncoder()
 df_target = le.fit_transform(np.ravel(df[['label']].values))
 mapping = dict(zip(le.transform(le.classes_), le.classes_))
@@ -30,10 +32,10 @@ data_train, data_test, target_train, target_test = train_test_split(
 
 max_score = 0
 SearchMethod = 0
-RFC_grid = {RandomForestClassifier(): {"n_estimators": [i for i in range(20, 40, 4)],
-                                       "criterion": ["gini", "entropy"],
-                                       "max_depth":[i for i in range(10, 20, 2)],
-                                       "max_features":['auto', 'sqrt', 'log2'],
+RFC_grid = {RandomForestClassifier(): {"n_estimators": [i for i in range(24, 40, 2)],
+                                       "criterion": ["entropy"],
+                                       "max_depth":[i for i in range(10, 16, 1)],
+                                       "max_features":['auto', 'sqrt'],
                                        # "random_state": [i for i in range(0, 10)]
                                       }}
 

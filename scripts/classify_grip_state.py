@@ -9,9 +9,9 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn import tree
 from dtreeviz.trees import *
 
-filepath = "/home/nakane/Documents/20231224_222504_r_gripper.csv"
+filepath = "/home/nakane/Documents/20231228_114431_r_gripper.csv"
 df = pd.read_csv(filepath)
-df = df[:3310]
+# df = df[:3310]
 columns = ['l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
               'l_prox_4', 'l_prox_5', 'l_prox_6', 'l_prox_7', 'l_prox_8', 'l_prox_9',
               'l_prox_10', 'l_prox_11', 'l_prox_12', 'l_prox_13', 'l_prox_14',
@@ -23,6 +23,8 @@ columns = ['l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
               'r_prox_18', 'r_prox_19', 'r_prox_20', 'r_prox_21', 'r_prox_22',
               'r_prox_23']
 df_data = df[columns].values
+largest_val = np.partition(np.unique(df_data).flatten(), -2)[-2]
+df_data = np.where(df_data == 10.0, largest_val*1.1, df_data)
 le = LabelEncoder()
 df_target = le.fit_transform(np.ravel(df[['label']].values))
 mapping = dict(zip(le.transform(le.classes_), le.classes_))
@@ -35,7 +37,7 @@ test = rf.predict(data_test)
 score = accuracy_score(target_test, test)
 print(score)
 columns = pd.core.indexes.base.Index(columns)
-filename = 'rf_20231224_222504_r_gripper.sav'
+filename = 'rf_20231228_114431_r_gripper2.sav'
 pickle.dump(rf, open(filename, 'wb'))
 
 viz = dtreeviz( 
