@@ -24,7 +24,7 @@ def prediction_color(cls):
         if result != 'x':
             color = 'red'
         else:
-            color = 'gray'
+            color = 'base'
         update_color(boxes[fingertip][name], color)
     viewer.redraw()
 
@@ -33,20 +33,15 @@ package_path = rospack.get_path('pr2_fingertip_sensors')
 model_path = package_path + '/robots/urdf/pfs.urdf'
 
 l_pfs_model = urdf.RobotModelFromURDF(urdf_file=model_path)
-# for l in l_pfs_model.link_list:
-#     update_color(l, 'base')
 l_pfs_model.translate([0,0.02,0])
 r_pfs_model = urdf.RobotModelFromURDF(urdf_file=model_path)
-# for l in r_pfs_model.link_list:
-#     update_color(l, 'base')
 r_pfs_model.translate([0,-0.02,0])
 r_pfs_model.rotate(np.pi, axis='x')
 
 viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(640, 480))
-viewer.add(l_pfs_model)
-viewer.add(r_pfs_model)
+# viewer.add(l_pfs_model)
+# viewer.add(r_pfs_model)
 viewer.set_camera(angles=[0,0,np.deg2rad(90)], distance=0.1)
-viewer.show()
 
 boxes = {'l_fingertip':{}, 'r_fingertip':{}}
 
@@ -99,3 +94,5 @@ boxes['r_fingertip']['top'] = bx_top
 
 for v in boxes['r_fingertip'].values():
     viewer.add(v)
+
+viewer.show()
