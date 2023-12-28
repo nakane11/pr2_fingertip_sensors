@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
 import pickle
+import yaml
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
@@ -28,6 +29,9 @@ df_data = np.where(df_data == 10.0, largest_val*1.1, df_data)
 le = LabelEncoder()
 df_target = le.fit_transform(np.ravel(df[['label']].values))
 mapping = dict(zip(le.transform(le.classes_), le.classes_))
+with open("mapping.yaml","w") as f:
+    yaml.dump(mapping, f, default_flow_style=None)
+
 data_train, data_test, target_train, target_test = train_test_split(
     df_data, df_target, test_size=0.2, random_state=0)
 
