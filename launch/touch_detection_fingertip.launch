@@ -1,0 +1,38 @@
+<launch>
+  <arg name="fingertip" />
+  <group ns="pfs_a_front"> 
+    <include file="$(find pr2_fingertip_sensors)/launch/touch_detection_board.launch" >
+      <arg name="fingertip" value="$(arg fingertip)" />
+      <arg name="board" value="pfs_a_front" />
+    </include>
+  </group>
+
+  <group ns="pfs_b_top"> 
+    <include file="$(find pr2_fingertip_sensors)/launch/touch_detection_board.launch" >
+      <arg name="fingertip" value="$(arg fingertip)" />
+      <arg name="board" value="pfs_b_top" />
+    </include>
+  </group>
+
+  <group ns="pfs_b_back"> 
+    <include file="$(find pr2_fingertip_sensors)/launch/touch_detection_board.launch" >
+      <arg name="fingertip" value="$(arg fingertip)" />
+      <arg name="board" value="pfs_b_back" />
+    </include>
+  </group>
+
+  <group ns="pfs_b_left"> 
+    <include file="$(find pr2_fingertip_sensors)/launch/touch_detection_board.launch" >
+      <arg name="fingertip" value="$(arg fingertip)" />
+      <arg name="board" value="pfs_b_left" />
+    </include>
+  </group>
+
+  <group ns="pfs_b_right"> 
+    <include file="$(find pr2_fingertip_sensors)/launch/touch_detection_board.launch" >
+      <arg name="fingertip" value="$(arg fingertip)" />
+      <arg name="board" value="pfs_b_right" />
+    </include>
+  </group>
+
+</launch>

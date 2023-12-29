@@ -1,0 +1,17 @@
+<launch>
+  <arg name="fingertip" />
+  <arg name="board" />
+
+  <node name="touch_detection_sensor" pkg="pr2_fingertip_sensors"
+        type="touch_detection_sensor.py" >
+    <param name="fingertip" value="$(arg fingertip)" />
+    <param name="board" value="$(arg board)" />
+  </node>
+
+  <node name="touch_detection_lowpass" pkg="pr2_fingertip_sensors"
+        type="touch_detection_lowpass.py" >
+    <param name="fingertip" value="$(arg fingertip)" />
+    <param name="board" value="$(arg board)" />
+  </node>
+  
+</launch>
