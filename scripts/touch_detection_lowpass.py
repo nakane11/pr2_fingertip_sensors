@@ -8,14 +8,12 @@ from std_msgs.msg import UInt8MultiArray
 class TouchDetectionBoard(object):
     def __init__(self):
         gripper = 'r_gripper'
-        fingertip = rospy.get_param('~fingertip', 'l_fingertip')
         self.board = rospy.get_param('~board', 'pfs_a_front')
         if self.board == 'pfs_a_front':
             self.buffer = np.full((2,8), 99, int)
         else:
             self.buffer = np.full((2,4), 99, int)
-        self.pub = rospy.Publisher('sensor_state_lowpass'.format(
-            gripper, fingertip, self.board), UInt8MultiArray, queue_size=1)
+        self.pub = rospy.Publisher('sensor_state_lowpass', UInt8MultiArray, queue_size=1)
         self.sub = rospy.Subscriber('sensor_state', SensorArray, self.cb, queue_size=1)
 
     def cb(self, msg):

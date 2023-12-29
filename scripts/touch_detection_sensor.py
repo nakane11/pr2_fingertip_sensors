@@ -19,8 +19,7 @@ class TouchDetectionSensor(object):
         self.board = rospy.get_param('~board', 'pfs_a_front')
         self.sensor_num = board2index[self.board][1] - board2index[self.board][0]
         self.average_value = [0] * self.sensor_num
-        self.pub = rospy.Publisher('/pfs/{}/{}/{}/sensor_state'.format(
-            gripper, fingertip, self.board), SensorArray, queue_size=1)
+        self.pub = rospy.Publisher('sensor_state', SensorArray, queue_size=1)
         self.sub = rospy.Subscriber('/pfs/{}/{}'.format(gripper, fingertip),
                                     PR2FingertipSensor, self.cb, queue_size=1)
 
