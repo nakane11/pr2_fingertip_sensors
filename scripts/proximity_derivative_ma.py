@@ -14,7 +14,7 @@ class ProximityDerivativeMA(object):
         self.pubs = {}
         self.subs = {}
         for fingertip in self.fingertips:
-            self.queue[fingertip] = np.zeros((WINDOW_SIZE, 4))
+            self.queue[fingertip] = np.zeros((WINDOW_SIZE, 24))
             self.subs[fingertip] = rospy.Subscriber(
                 '/pfs/{}/{}/proximity_derivative'.format(self.gripper, fingertip),
                 SensorArray, self.cb, fingertip, queue_size=1)
@@ -23,7 +23,7 @@ class ProximityDerivativeMA(object):
                 SensorArray, queue_size=1)
 
     def cb(self, msg, fingertip):
-        self.queue[fingertip] = np.append(self.queue[fingertip], np.array(msg.data).reshape(1, 4), axis=0)
+        self.queue[fingertip] = np.append(self.queue[fingertip], np.array(msg.data).reshape(1, 24), axis=0)
         self.queue[fingertip] = np.delete(self.queue[fingertip], 0, axis=0)
         pub_msg = SensorArray(header=msg.header)
         pub_msg.data = np.average(self.queue[fingertip], axis=0)

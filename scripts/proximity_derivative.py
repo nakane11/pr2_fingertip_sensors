@@ -3,15 +3,15 @@
 import rospy
 from pr2_fingertip_sensors.msg import PR2FingertipSensor, SensorArray
 
-SENSOR_NUM_START = 8
-SENSOR_NUM = 4
-EA = 0.3
+SENSOR_NUM_START = 0
+SENSOR_NUM = 24
 SENSITIVITY = 22500
 
 class ProximityDerivative(object):
     def __init__(self):
         self.gripper = 'r_gripper'
         self.fingertips = ['l_fingertip', 'r_fingertip']
+        self.EA = rospy.get_param('~ea', 0.3)
         self.average_value = {}
         self.mode = {}
         self.pubs = {}
@@ -19,7 +19,7 @@ class ProximityDerivative(object):
         for fingertip in self.fingertips:
             self.mode[fingertip] = ''
             self.average_value[fingertip] = [0]*SENSOR_NUM
-            self.pubs[fingertip] = rospy.Publisher('/pfs/{}/{}/proximity_derivative'.format(self.gripper, fingertip),
+            self.pubs[fingertip] = rospy.Publisher('~output'.format(self.gripper, fingertip),
                                        SensorArray, queue_size=1)
             self.subs[fingertip] = rospy.Subscriber(
                 '/pfs/{}/{}'.format(self.gripper, fingertip),
@@ -39,7 +39,7 @@ class ProximityDerivative(object):
                 mode = mode + '\033[32m'+'R'+'\033[0m' + ' '
             else:
                 mode = mode + '\033[37m'+'0'+'\033[0m' + ' '
-            self.average_value[fingertip][i] = EA * proximity_raw + (1-EA) * self.average_value[fingertip][i]
+            self.average_value[fingertip][i] = self.EA * proximity_raw + (1-self.EA) * self.average_value[fingertip][i]
         pub_msg.data = fa2
         self.pubs[fingertip].publish(pub_msg)
         self.mode[fingertip] = mode
