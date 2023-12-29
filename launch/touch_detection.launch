@@ -1,0 +1,77 @@
+<launch>
+  <node name="touch_detection_sensor_a_front" pkg="pr2_fingertip_sensors"
+        type="touch_detection_sensor.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_a_front" />
+  </node>
+
+  <node name="touch_detection_sensor_b_top" pkg="pr2_fingertip_sensors"
+        type="touch_detection_sensor.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_b_top" />
+  </node>
+
+  <node name="touch_detection_sensor_b_back" pkg="pr2_fingertip_sensors"
+        type="touch_detection_sensor.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_b_back" />
+  </node>
+
+  <node name="touch_detection_sensor_b_left" pkg="pr2_fingertip_sensors"
+        type="touch_detection_sensor.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_b_left" />
+  </node>
+
+  <node name="touch_detection_sensor_b_right" pkg="pr2_fingertip_sensors"
+        type="touch_detection_sensor.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_b_right" />
+  </node>
+
+  <node name="touch_detection_board_a_front" pkg="pr2_fingertip_sensors"
+        type="touch_detection_board.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_a_front" />
+  </node>
+
+  <node name="touch_detection_board_b_top" pkg="pr2_fingertip_sensors"
+        type="touch_detection_board.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_b_top" />
+  </node>
+
+  <node name="touch_detection_board_b_back" pkg="pr2_fingertip_sensors"
+        type="touch_detection_board.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_b_back" />
+  </node>
+
+  <node name="touch_detection_board_b_left" pkg="pr2_fingertip_sensors"
+        type="touch_detection_board.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_b_left" />
+  </node>
+
+  <node name="touch_detection_board_b_right" pkg="pr2_fingertip_sensors"
+        type="touch_detection_board.py" >
+    <param name="fingertip" value="r_fingertip" />
+    <param name="board" value="pfs_b_right" />
+  </node>
+
+  <!-- <node name="proximity_derivative_02" pkg="pr2_fingertip_sensors" -->
+  <!--       type="proximity_derivative.py" > -->
+  <!--   <param name="ea" value="0.3" /> -->
+  <!-- </node> -->
+
+  <!-- <node name="proximity_derivative_05" pkg="pr2_fingertip_sensors" -->
+  <!--       type="proximity_derivative.py" > -->
+  <!--   <param name="ea" value="0.5" /> -->
+  <!-- </node> -->
+
+  <!-- <node name="proximity_derivative_08" pkg="pr2_fingertip_sensors" -->
+  <!--       type="proximity_derivative.py" > -->
+  <!--   <param name="ea" value="0.8" /> -->
+  <!-- </node> -->
+  
+</launch>  
