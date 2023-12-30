@@ -18,6 +18,11 @@
     <param name="board" value="$(arg board)" />
   </node>
 
+  <node name="force_derivative" pkg="pr2_fingertip_sensors"
+        type="force_derivative.py" >
+    <param name="board" value="$(arg board)" />
+  </node>
+
   <node name="transform" pkg="topic_tools" type="transform"
       args="contact_force sum_contact_force std_msgs/Float32 'sum(m.data)'" />
 
