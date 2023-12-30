@@ -1,27 +1,25 @@
 #!/usr/bin/env python
-
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
-import yaml
 
-with open('/home/nakane/ros/pr2_fingertip_ws/src/pr2_fingertip_sensors/data/pfs_params.yaml', 'r') as yml:
-    pfs_params = yaml.safe_load(yml)
+filepath = "/home/nakane/Documents/cf_20231230_155508_r_gripper_04.csv"
+df = pd.read_csv(filepath)
+df_data = df[['l_force_{}'.format(i) for i in range(24)]
+             + ['r_force_{}'.format(i) for i in range(24)]].values
 
-filepath = "/home/nakane/Documents/20231216_162637_r_gripper_l_fingertip.csv"
-dist = pd.read_csv(filepath)
-
-# dist_data = dist.iloc[:, 2:].values
-dist_data = dist.iloc[:, 2:].values/pfs_params['pfs']['r_gripper']['l_fingertip']['proximity_a'][8:12]
-dist_target = dist.iloc[:, 1].values
+df_target = np.ravel(df[['label']].values)
 data_train, data_test, target_train, target_test = train_test_split(
-    dist_data, dist_target, test_size=0.2, random_state=0)
+    df_data, df_target, test_size=0.2, random_state=0)
 
 param_grid = {
-    'hidden_layer_sizes': [10, 100, 1000],
-    'activation': ['identity', 'logistic', 'tanh', 'relu'],
-    'solver': ['adam', 'lbfgs'],
+    'hidden_layer_sizes': [100, 1000, 10000],
+    # 'activation': ['identity', 'logistic', 'tanh', 'relu'],
+    'activation': ['relu'],    
+    # 'solver': ['adam', 'lbfgs'],
+    'solver': ['adam'],    
     'learning_rate_init': [0.1, 0.01, 0.001]
 }
 
