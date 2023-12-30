@@ -7,7 +7,6 @@ from std_msgs.msg import UInt8MultiArray
 
 class TouchDetectionBoard(object):
     def __init__(self):
-        gripper = 'r_gripper'
         self.board = rospy.get_param('~board', 'pfs_a_front')
         if self.board == 'pfs_a_front':
             self.buffer = np.full((2,8), 99, int)

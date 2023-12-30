@@ -12,5 +12,15 @@
         type="touch_detection_lowpass.py" >
     <param name="board" value="$(arg board)" />
   </node>
-  
+
+  <node name="contact_force" pkg="pr2_fingertip_sensors"
+        type="contact_force.py" output="screen">
+    <param name="board" value="$(arg board)" />
+  </node>
+
+  <node name="transform" pkg="topic_tools" type="transform"
+      args="contact_force sum_contact_force std_msgs/Float32 'sum(m.data)'" />
+
+  <node name="relay" pkg="topic_tools" type="relay"
+      args="sum_contact_force /pfs/r_gripper_$(arg fingertip)_$(arg board)_sum_contact_force" />
 </launch>
