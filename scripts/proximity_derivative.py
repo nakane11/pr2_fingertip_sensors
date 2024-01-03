@@ -19,7 +19,7 @@ class ProximityDerivative(object):
         for fingertip in self.fingertips:
             self.mode[fingertip] = ''
             self.average_value[fingertip] = [0]*SENSOR_NUM
-            self.pubs[fingertip] = rospy.Publisher('~output'.format(self.gripper, fingertip),
+            self.pubs[fingertip] = rospy.Publisher('~{}/output'.format(fingertip),
                                        SensorArray, queue_size=1)
             self.subs[fingertip] = rospy.Subscriber(
                 '/pfs/{}/{}'.format(self.gripper, fingertip),
@@ -32,10 +32,10 @@ class ProximityDerivative(object):
         pub_msg = SensorArray(header=msg.header)
         for i in range(SENSOR_NUM):
             proximity_raw = proximities_raw[SENSOR_NUM_START+i]
-            fa2[i] = self.average_value[fingertip][i] - proximity_raw
-            if fa2[i] < -SENSITIVITY:
+            fa2[i] = proximity_raw - self.average_value[fingertip][i]
+            if fa2[i] > SENSITIVITY:
                 mode = mode + '\033[31m'+'T'+'\033[0m' + ' '
-            elif fa2[i] > SENSITIVITY:
+            elif fa2[i] < -SENSITIVITY:
                 mode = mode + '\033[32m'+'R'+'\033[0m' + ' '
             else:
                 mode = mode + '\033[37m'+'0'+'\033[0m' + ' '

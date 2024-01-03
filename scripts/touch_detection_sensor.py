@@ -31,11 +31,11 @@ class TouchDetectionSensor(object):
         pub_msg = SensorArray(header=msg.header)
         for i, idx in enumerate(range(board2index[self.board][0], board2index[self.board][1])):
             proximity_raw = proximities_raw[idx]
-            fa2[i] = self.average_value[i] - proximity_raw
-            if fa2[i] < -SENSITIVITY:
+            fa2[i] =  proximity_raw - self.average_value[i]
+            if fa2[i] > SENSITIVITY:
                 mode_str = mode_str + '\033[31m'+'T'+'\033[0m' + ' '
                 mode[i] = 1
-            elif fa2[i] > SENSITIVITY:
+            elif fa2[i] < - SENSITIVITY:
                 mode_str = mode_str + '\033[32m'+'R'+'\033[0m' + ' '
                 mode[i] = 2                
             else:
