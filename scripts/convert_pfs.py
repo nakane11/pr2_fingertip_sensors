@@ -211,6 +211,8 @@ class ConvertPFS(object):
                 # Publish each force sensor value
                 preload = self.pfs_params[gripper][fingertip]['preload'][index]
                 sensitivity = self.pfs_params[gripper][fingertip]['sensitivity'][index]
+                if msg.force[index] > 5000:
+                    return
                 force = 0.105 * (msg.force[index] - preload) / sensitivity
                 force_msg = WrenchStamped()
                 header.frame_id = frame_id
