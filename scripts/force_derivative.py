@@ -1,35 +1,52 @@
 #!/usr/bin/env python
 
 import rospy
-from pr2_fingertip_sensors.msg import SensorArray
+from pr2_fingertip_sensors.msg import PR2FingertipSensor, SensorArray
 
-board2index = {'pfs_a_front': [0, 8],
-               'pfs_b_top': [8, 12],
-               'pfs_b_back': [12, 16],
-               'pfs_b_left': [16, 20],
-               'pfs_b_right': [20, 24]}
+SENSOR_NUM_START = 0
+SENSOR_NUM = 24
+# SENSITIVITY = 22500
 
 class ProximityDerivative(object):
     def __init__(self):
-        self.board = rospy.get_param('~board', 'pfs_a_front')
-        self.EA = rospy.get_param('~ea', 0.4)
-        self.average_value = [0] * (board2index[self.board][1] - board2index[self.board][0])
-        self.pub = rospy.Publisher('contact_force_derivative', SensorArray, queue_size=1)
-        self.sub = rospy.Subscriber('contact_force', SensorArray,self.cb, queue_size=1)
+        self.gripper = 'r_gripper'
+        self.fingertips = ['l_fingertip', 'r_fingertip']
+        self.EA = rospy.get_param('~ea', 0.3)
+        self.average_value = {}
+        # self.mode = {}
+        self.pubs = {}
+        self.subs = {}
+        for fingertip in self.fingertips:
+            # self.mode[fingertip] = ''
+            self.average_value[fingertip] = [0]*SENSOR_NUM
+            self.pubs[fingertip] = rospy.Publisher('~{}/output'.format(fingertip),
+                                       SensorArray, queue_size=1)
+            self.subs[fingertip] = rospy.Subscriber(
+                '/pfs/{}/{}_forces_abs'.format(self.gripper, fingertip),
+                SensorArray, self.cb, fingertip, queue_size=1)
 
-    def cb(self, msg):
-        forces_raw = msg.data
-        fa2 = [0] * (board2index[self.board][1] - board2index[self.board][0])
+    def cb(self, msg, fingertip):
+        # mode = ''
+        proximities_raw = msg.data
+        fa2 = [0] * (SENSOR_NUM)
         pub_msg = SensorArray(header=msg.header)
-        for i in range(board2index[self.board][1] - board2index[self.board][0]):
-            force_raw = forces_raw[i]
-            fa2[i] = self.average_value[i] - force_raw
-            self.average_value[i] = self.EA * force_raw + (1-self.EA) * self.average_value[i]
+        for i in range(SENSOR_NUM):
+            proximity_raw = proximities_raw[SENSOR_NUM_START+i]
+            fa2[i] = proximity_raw - self.average_value[fingertip][i]
+            # if fa2[i] > SENSITIVITY:
+            #     mode = mode + '\033[31m'+'T'+'\033[0m' + ' '
+            # elif fa2[i] < -SENSITIVITY:
+            #     mode = mode + '\033[32m'+'R'+'\033[0m' + ' '
+            # else:
+            #     mode = mode + '\033[37m'+'0'+'\033[0m' + ' '
+            self.average_value[fingertip][i] = self.EA * proximity_raw + (1-self.EA) * self.average_value[fingertip][i]
         pub_msg.data = fa2
-        self.pub.publish(pub_msg)
+        self.pubs[fingertip].publish(pub_msg)
+        # self.mode[fingertip] = mode
+        # print(self.mode['l_fingertip'] + ' ' + self.mode['r_fingertip'])
 
 if __name__ == '__main__':
-    rospy.init_node('force_derivative')
+    rospy.init_node('proximity_derivative')
     pd = ProximityDerivative()
     rospy.spin()
 

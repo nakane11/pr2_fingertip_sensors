@@ -6,13 +6,26 @@
         <include file="$(find pr2_fingertip_sensors)/launch/touch_detection_fingertip.launch" >
           <arg name="fingertip" value="r_fingertip" />
         </include>
+
+        <node name="force_abs" pkg="topic_tools" type="transform"
+              args="forces /pfs/r_gripper/r_fingertip_forces_abs pr2_fingertip_sensors/SensorArray
+                    'pr2_fingertip_sensors.msg.SensorArray(header=m.header, data=[abs(i) for i in m.data])' --import pr2_fingertip_sensors" />
       </group>
- 
+
       <group ns="l_fingertip">
         <include file="$(find pr2_fingertip_sensors)/launch/touch_detection_fingertip.launch" >
           <arg name="fingertip" value="l_fingertip" />
         </include>
+
+        <node name="force_abs" pkg="topic_tools" type="transform"
+              args="forces /pfs/r_gripper/l_fingertip_forces_abs pr2_fingertip_sensors/SensorArray
+                    'pr2_fingertip_sensors.msg.SensorArray(header=m.header, data=[abs(i) for i in m.data])' --import pr2_fingertip_sensors" />
       </group>
+
+  <node name="force_derivative" pkg="pr2_fingertip_sensors"
+        type="force_derivative.py" >
+    <param name="ea" value="0.3" />
+  </node>
 
   <!-- <node name="proximity_derivative_02" pkg="pr2_fingertip_sensors" -->
   <!--       type="proximity_derivative.py" > -->
