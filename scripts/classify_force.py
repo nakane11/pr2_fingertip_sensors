@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import train_test_split
 
-filepath = "/home/nakane/Documents/cf_20231230_155508_r_gripper_04.csv"
+filepath = "/home/nakane/Documents/20240104_180355_force_deriv.csv"
 df = pd.read_csv(filepath)
 df_data = df[['l_force_{}'.format(i) for i in range(24)]
              + ['r_force_{}'.format(i) for i in range(24)]].values
@@ -26,5 +26,5 @@ print(train_score, test_score)
 print(clf.predict(data_test))
 print(target_test)
 
-filename = 'cf_20231230_155508_r_gripper_04_1000_relu_adam.sav"'
-pickle.dump(clf, open(filename, 'wb'))
+# filename = 'cf_20231230_155508_r_gripper_04_1000_relu_adam.sav"'
+# pickle.dump(clf, open(filename, 'wb'))

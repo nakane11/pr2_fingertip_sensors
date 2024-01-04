@@ -19,7 +19,7 @@ class ProximityDerivative(object):
         for fingertip in self.fingertips:
             # self.mode[fingertip] = ''
             self.average_value[fingertip] = [0]*SENSOR_NUM
-            self.pubs[fingertip] = rospy.Publisher('~{}/output'.format(fingertip),
+            self.pubs[fingertip] = rospy.Publisher('{}/force_derivative'.format(fingertip),
                                        SensorArray, queue_size=1)
             self.subs[fingertip] = rospy.Subscriber(
                 '/pfs/{}/{}_forces_abs'.format(self.gripper, fingertip),
