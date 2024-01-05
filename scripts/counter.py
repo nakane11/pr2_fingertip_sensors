@@ -5,7 +5,6 @@ import datetime
 import numpy as np
 import rospy
 from pr2_fingertip_sensors.msg import SensorArray
-# from std_msgs.msg import Empty
 
 ARRAY_SIZE = 10
 SENSOR_NUM = 24
@@ -30,8 +29,6 @@ class Counter(object):
             writer = csv.writer(f)
             writer.writerow(indices)
 
-        # self.pub = rospy.Publisher(
-        #     '/pfs/r_gripper/force_save', Empty, queue_size=1)
         for fingertip in self.fingertips:
             self.data_array[fingertip] = [0]*SENSOR_NUM
             self.subs[fingertip] = rospy.Subscriber(
@@ -48,42 +45,57 @@ class Counter(object):
         self.label = label
         rospy.Timer(rospy.Duration(3.5), self.run, oneshot=True)
         
-    def run(self,event):
+    def run(self, event):
         rospy.loginfo("{}: {}".format(self.n, self.label))
         rospy.sleep(0.7)
         self.save()
-        if self.label in self.data_num.keys():
-            self.data_num[self.label] += 1
-        else:
-            self.data_num[self.label] = 1        
-        rospy.loginfo("save: {}{}".format(self.label, self.data_num[self.label]))
-        if self.n > 1:
-            self.n = self.n - 1
+        if self.n > 0:
             rospy.Timer(rospy.Duration(1.5), self.run, oneshot=True)
         else:
             rospy.loginfo("Finish.")
 
-    def save(self):
-        # self.pub.publish(Empty())
-        label = self.label
+    def get_data(self, label):
         start_time = rospy.Time.now()
         save_data = [start_time, label]
         for fingertip in self.fingertips:
             save_data += self.data_array[fingertip]
+        return save_data
+
+    def save(self):
+        label = self.label
+        save_data = self.get_data(label)
+        for i in range(5):
+            if label == 's':
+                if np.count_nonzero(np.array(save_data[2:]) > 1.0) < 2:
+                    if i<4:
+                        save_data = self.get_data(label)
+                    else:
+                        rospy.loginfo("unreliable")
+                        return
+                else:
+                    break
+            if label == 'w':
+                if np.count_nonzero(np.array(save_data[2:]) < -1.0) < 2:
+                    if i<4:
+                        save_data = self.get_data(label)
+                    else:
+                        rospy.loginfo("unreliable")
+                        return
+                else:
+                    break
         with open(self.filepath, 'a') as f:
             writer = csv.writer(f)
             writer.writerow(save_data)
-        
+        if self.label in self.data_num.keys():
+            self.data_num[self.label] += 1
+        else:
+            self.data_num[self.label] = 1
+        rospy.loginfo("save: {}{}".format(self.label, self.data_num[self.label]))
+        self.n = self.n - 1
+
 if __name__ == '__main__':
     rospy.init_node('predict')
     counter = Counter()
-    counter.start(200, 'f')
-    # for i in range(20):
-    #     counter.start(10, 's')
-    #     rospy.sleep(2)
-    #     counter.start(10, 'w')
-    #     rospy.sleep(2)
-    #     counter.start(10, 'f')
-    #     rospy.sleep(2)
+    counter.start(200, 'w')
     print('end')
     rospy.spin()
