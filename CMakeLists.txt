@@ -10,6 +10,7 @@ add_message_files(
   FILES
   PR2FingertipSensor.msg
   SensorArray.msg
+  Float32Stamped.msg
   )
 
 generate_messages(
