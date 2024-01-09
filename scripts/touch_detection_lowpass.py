@@ -5,7 +5,7 @@ import rospy
 from pr2_fingertip_sensors.msg import SensorArray
 from std_msgs.msg import UInt8MultiArray
 
-class TouchDetectionBoard(object):
+class TouchDetectionLowpass(object):
     def __init__(self):
         self.board = rospy.get_param('~board', 'pfs_a_front')
         if self.board == 'pfs_a_front':
@@ -42,7 +42,7 @@ class TouchDetectionBoard(object):
         self.pub.publish(pub_msg)
 
 if __name__ == '__main__':
-    rospy.init_node('touch_detection_board', anonymous=True)
-    tdb = TouchDetectionBoard()
+    rospy.init_node('touch_detection_lowpass', anonymous=True)
+    tdl = TouchDetectionLowpass()
     rospy.spin()
         

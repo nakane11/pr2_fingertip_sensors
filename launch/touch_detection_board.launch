@@ -12,4 +12,9 @@
         type="touch_detection_lowpass.py" >
     <param name="board" value="$(arg board)" />
   </node>
+
+  <node name="touch_detection_board" pkg="pr2_fingertip_sensors"
+        type="touch_detection_board.py" >
+    <param name="board" value="$(arg board)" />
+  </node>
 </launch>
