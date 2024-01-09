@@ -1,0 +1,27 @@
+<launch>
+  <group ns="pfs">
+    <group ns="r_gripper"> 
+
+      <group ns="r_fingertip">
+        <node name="force_abs" pkg="topic_tools" type="transform"
+              args="forces /pfs/r_gripper/r_fingertip_forces_abs pr2_fingertip_sensors/SensorArray
+                    'pr2_fingertip_sensors.msg.SensorArray(header=m.header, data=[abs(i) for i in m.data])' --import pr2_fingertip_sensors" />
+      </group>
+
+      <group ns="l_fingertip">
+        <node name="force_abs" pkg="topic_tools" type="transform"
+              args="forces /pfs/r_gripper/l_fingertip_forces_abs pr2_fingertip_sensors/SensorArray
+                    'pr2_fingertip_sensors.msg.SensorArray(header=m.header, data=[abs(i) for i in m.data])' --import pr2_fingertip_sensors" />
+      </group>
+
+  <node name="force_derivative" pkg="pr2_fingertip_sensors"
+        type="force_derivative.py" >
+    <param name="ea" value="0.3" />
+  </node>
+
+  <node name="relay" pkg="topic_tools" type="relay"
+        args="r_fingertip/force_derivative /pfs/r_gripper/r_fingertip_force_derivative" />
+
+</group>
+</group>
+</launch>  

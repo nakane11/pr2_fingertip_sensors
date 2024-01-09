@@ -1,0 +1,20 @@
+<launch>
+  <group ns="pfs">
+    <group ns="r_gripper"> 
+      <group ns="r_fingertip">
+        <node name="force_gf_b_top_0" pkg="topic_tools" type="transform"
+              args="pfs_b_top/force/0 pfs_b_top/force/0_gf std_msgs/Float32
+                    'm.wrench.force.z*101.971621298'" />
+        <node name="force_gf_b_top_1" pkg="topic_tools" type="transform"
+              args="pfs_b_top/force/1 pfs_b_top/force/1_gf std_msgs/Float32
+                    'm.wrench.force.z*101.971621298'" />
+        <node name="force_gf_b_top_2" pkg="topic_tools" type="transform"
+              args="pfs_b_top/force/2 pfs_b_top/force/2_gf std_msgs/Float32
+                    'm.wrench.force.z*101.971621298'" />
+        <node name="force_gf_b_top_3" pkg="topic_tools" type="transform"
+              args="pfs_b_top/force/3 pfs_b_top/force/3_gf std_msgs/Float32
+                    'm.wrench.force.z*101.971621298'" />                
+      </group>
+    </group>
+  </group>
+</launch>
