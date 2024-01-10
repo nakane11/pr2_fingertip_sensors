@@ -16,9 +16,13 @@
 
   <node name="force_derivative" pkg="pr2_fingertip_sensors"
         type="force_derivative.py" >
-    <param name="ea" value="0.3" />
+    <param name="ea" value="0.4" />
   </node>
 
+  <node name="force_detection" pkg="pr2_fingertip_sensors"
+        type="force_detection.py" >
+  </node>
+  
   <node name="relay" pkg="topic_tools" type="relay"
         args="r_fingertip/force_derivative /pfs/r_gripper/r_fingertip_force_derivative" />
 
