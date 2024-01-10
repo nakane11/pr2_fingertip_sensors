@@ -4,7 +4,7 @@ import rospy
 from pr2_fingertip_sensors.msg import SensorArray
 from std_msgs.msg import String
 
-SENSITIVITY = 5
+SENSITIVITY = 7
 class ForceDetection(object):
     def __init__(self):
         self.gripper = 'r_gripper'
@@ -21,9 +21,9 @@ class ForceDetection(object):
     def cb(self, msg, fingertip):
         self.force_sum[fingertip] = sum(msg.data)
         s = sum(self.force_sum.values)
-        if s > 7:
+        if s > SENSITIVITY:
             pub_msg = String(data="s")
-        elif s < -7:
+        elif s < -SENSITIVITY:
             pub_msg = String(data="w")
         else:
             pub_msg = String(data="u")
