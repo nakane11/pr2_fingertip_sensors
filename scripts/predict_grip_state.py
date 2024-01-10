@@ -25,7 +25,7 @@ class Predict(object):
             filename = os.path.join(package_path, model_path[model_type])
             self.models[model_type] = pickle.load(open(filename, 'rb'))
         self.gripper = 'r_gripper'
-        self.pub = rospy.Publisher('/pfs/{}/grip_status'.format(self.gripper), String, queue_size=1)
+        self.pub = rospy.Publisher('/pfs/{}/grip_state'.format(self.gripper), String, queue_size=1)
         self.fingertips = ['l_fingertip', 'r_fingertip']
         self.subs = {}
         self.data = {}
