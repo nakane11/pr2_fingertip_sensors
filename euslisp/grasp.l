@@ -24,8 +24,14 @@
   (ros::subscribe topic-name std_msgs::String #'force-cb)
   (loop
    (when (string-equal *force-state* "s")
+     (ros::ros-info "s")
      ;; あとで接触するまでに変える
-     (send *ri* :start-grasp))
+     (send *ri* :start-grasp)
+     (unix::sleep 5))
    (when (string-equal *force-state* "w")
-     (send *ri* :stop-grasp)))
+     (ros::ros-info "s")
+     (send *ri* :stop-grasp)
+     (unix::sleep 5))
+   (ros::spin-once)
+   )
   (ros::unscribe topic-name))
