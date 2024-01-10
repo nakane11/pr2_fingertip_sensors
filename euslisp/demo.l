@@ -2,6 +2,7 @@
 (load "package://pr2_fingertip_sensors/euslisp/place-hand.l")
 (load "package://pr2_fingertip_sensors/euslisp/touch-hand.l")
 (load "package://pr2_fingertip_sensors/euslisp/stroke.l")
+(load "package://pr2_fingertip_sensors/euslisp/grasp.l")
 
 (ros::roseus "demo")
 (pr2-init)
@@ -21,6 +22,7 @@
 (objects (list *pr2* *a*))
 
 ;; 手を近づける
+(send *ri* :start-grasp)
 (place-hand target 250)
 (setq result (touch-hand-translate 250))
 
@@ -33,5 +35,9 @@
 ;; 離れるまで撫でる
 (stroke)
 
+;; グリッパが掴まれたら開く
+(wait-grasp)
+(send *ri* :stop-grasp :rarm)
 
-
+;; 強く握られたらグリッパを狭める
+(hold-back)

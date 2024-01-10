@@ -69,7 +69,7 @@
   (ros::subscribe (format nil "~A/result" controller-name)
                   control_msgs::FollowJointTrajectoryActionResult
                   #'(lambda (msg) (setq result t)))
-  
+
   (setq end-coords (send *pr2* :rarm :end-coords :copy-worldcoords))
   (if (string-equal fingertip "l_fingertip")
       (send end-coords :rotate (deg2rad -10) :z :local)
@@ -86,5 +86,7 @@
      (return))
    (ros::spin-once)
    )
+  (ros::unsubscribe topic-name)
+  (ros::unsubscribe (format nil "~A/result" controller-name))
   )
 
