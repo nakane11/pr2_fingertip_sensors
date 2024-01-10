@@ -15,12 +15,12 @@ class ForceDetection(object):
         for fingertip in self.fingertips:
             self.force_sum[fingertip] = 0.0
             self.subs[fingertip] = rospy.Subscriber(
-                '/pfs/{}/{}/forces_derivative'.format(self.gripper, fingertip),
+                '/pfs/{}/{}/force_derivative'.format(self.gripper, fingertip),
                 SensorArray, self.cb, fingertip, queue_size=1)
 
     def cb(self, msg, fingertip):
         self.force_sum[fingertip] = sum(msg.data)
-        s = sum(self.force_sum.values)
+        s = sum(self.force_sum.values())
         if s > SENSITIVITY:
             pub_msg = String(data="s")
         elif s < -SENSITIVITY:
