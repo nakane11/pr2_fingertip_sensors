@@ -27,11 +27,11 @@
      (ros::ros-info "s")
      ;; あとで接触するまでに変える
      (send *ri* :start-grasp)
-     (unix::sleep 5))
+     (unix::sleep 10))
    (when (string-equal *force-state* "w")
      (ros::ros-info "s")
      (send *ri* :stop-grasp)
-     (unix::sleep 5))
+     (unix::sleep 10))
    (ros::spin-once)
    )
   (ros::unscribe topic-name))
