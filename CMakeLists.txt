@@ -13,6 +13,11 @@ add_message_files(
   Float32Stamped.msg
   )
 
+add_service_files(
+  FILES
+  HandPose.srv
+  )
+
 generate_messages(
   DEPENDENCIES
   std_msgs sensor_msgs
