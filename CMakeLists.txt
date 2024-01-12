@@ -16,6 +16,7 @@ add_message_files(
 add_service_files(
   FILES
   HandPose.srv
+  SwitchGripperState.srv
   )
 
 generate_messages(
