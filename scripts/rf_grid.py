@@ -9,7 +9,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import f1_score
 
-filepath = "/home/nakane/Documents/20240112_133423_r_gripper_state3.csv"
+filepath = "/home/nakane/Documents/20240112_174323_r_gripper_state2.csv"
 df = pd.read_csv(filepath)
 columns = ['l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
               'l_prox_4', 'l_prox_5', 'l_prox_6', 'l_prox_7', 'l_prox_8', 'l_prox_9',
@@ -33,9 +33,9 @@ data_train, data_test, target_train, target_test = train_test_split(
 max_score = 0
 SearchMethod = 0
 RFC_grid = {RandomForestClassifier(): {"n_estimators": [i for i in range(2, 50, 4)],
-                                       "criterion": ["entropy"],
+                                       "criterion": ["entropy", "gini"],
                                        "max_depth":[i for i in range(2, 30, 2)],
-                                       "max_features":['auto', 'sqrt'],
+                                       "max_features":['auto', 'sqrt', "log2"],
                                        # "random_state": [i for i in range(0, 10)]
                                       }}
 

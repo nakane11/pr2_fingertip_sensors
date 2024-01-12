@@ -10,7 +10,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn import tree
 from dtreeviz.trees import *
 
-filepath = "/home/nakane/Documents/20240112_133423_r_gripper_state3.csv"
+filepath = "/home/nakane/Documents/20240112_174323_r_gripper_state2.csv"
 df = pd.read_csv(filepath)
 # df = df[:3310]
 columns = ['l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
@@ -35,13 +35,13 @@ with open("mapping.yaml","w") as f:
 data_train, data_test, target_train, target_test = train_test_split(
     df_data, df_target, test_size=0.2, random_state=0)
 
-rf = RandomForestClassifier()
+rf = RandomForestClassifier(criterion='entropy', max_depth=22, n_estimators=22)
 rf.fit(data_train, target_train)
 test = rf.predict(data_test)
 score = accuracy_score(target_test, test)
 print(score)
 columns = pd.core.indexes.base.Index(columns)
-filename = 'rf_20240112_133423_r_gripper_state3.sav'
+filename = "rf_20240112_174323_r_gripper_state2.sav"
 pickle.dump(rf, open(filename, 'wb'))
 
 viz = dtreeviz( 

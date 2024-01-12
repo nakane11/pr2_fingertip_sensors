@@ -12,8 +12,11 @@ from std_msgs.msg import String
 
 rospack = rospkg.RosPack()
 package_path = rospack.get_path('pr2_fingertip_sensors')
-model_path = {'state3':'data/rf_20240112_133423_r_gripper_state3.sav'}
-mapping_path = {'state3':'data/mapping_state3.yaml'}
+model_path = {'state2':'data/rf_20240112_174323_r_gripper_state2.sav',
+              'state3':'data/rf_20240112_133423_r_gripper_state3.sav'}
+
+mapping_path = {'state2':'data/mapping_state2.yaml',
+                'state3':'data/mapping_state3.yaml'}
     
 class Predict(object):
     def __init__(self):
