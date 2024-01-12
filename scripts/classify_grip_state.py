@@ -10,7 +10,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn import tree
 from dtreeviz.trees import *
 
-filepath = "/home/nakane/Documents/20231228_114431_r_gripper.csv"
+filepath = "/home/nakane/Documents/20240112_133423_r_gripper_state3.csv"
 df = pd.read_csv(filepath)
 # df = df[:3310]
 columns = ['l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
@@ -41,7 +41,7 @@ test = rf.predict(data_test)
 score = accuracy_score(target_test, test)
 print(score)
 columns = pd.core.indexes.base.Index(columns)
-filename = 'rf_20231228_114431_r_gripper2.sav'
+filename = 'rf_20240112_133423_r_gripper_state3.sav'
 pickle.dump(rf, open(filename, 'wb'))
 
 viz = dtreeviz( 
