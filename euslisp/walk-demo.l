@@ -1,9 +1,11 @@
 (load "package://pr2_fingertip_sensors/euslisp/place-hand.l")
+(ros::roseus-add-srvs "pr2_fingertip_sensors")
 
 (setq simulation-mode t)
 ;; 初期姿勢
 (ros::roseus "demo")
 (pr2-init)
+(ros::wait-for-service "/hand_pose_server/start_holding")
 (pr2-tuckarm-pose :free-arm :rarm)
 (send *pr2* :torso_lift_joint :joint-angle 182)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1500 :torso-controller 0 :minjerk-interpolation t))
@@ -16,17 +18,15 @@
   (setq target (search-hand 15)))
 
 ;; 手の位置に対する相対位置を計算して手を指しだす
-(send target :translate (float-vector -450 10 20) :world)
+(send target :translate (float-vector -450 -40 20) :world)
 (send target :replace-rot (rpy-matrix 0 (deg2rad 80) 0))
 (send *pr2* :rarm :inverse-kinematics target :rotation-axis :t)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 4000 :rarm-controller 0 :minjerk-interpolation t)
-;;;; グリッパを少し開く
-(send *ri* :move-gripper :rarm 0.015)
 
 ;; 人からの手繋ぎ
-(setq *start-holding* t)
-;; 手繋ぎ完了
-(setq *start-holding* nil)
+(setq req (instance pr2_fingertip_sensors::HandPoseRequest :init))
+(send req :continuous nil)
+(setq res (ros::service-call "/hand_pose_server/start_holding" req))
 
 ;; 現在の繋ぎ方と進行方向に応じて腕と台車を回転させる
 (setq next-base-angle 200) ;;baseの回転量
@@ -48,6 +48,11 @@
 (send *pr2* :r_shoulder_pan_joint :joint-angle arm-move-angle1)
 (setq tmp (send *pr2* :r_wrist_roll_joint :joint-angle))
 (send *pr2* :r_wrist_roll_joint :joint-angle (- tmp arm-move-angle1))
+;; 腕を縮める
+;; (setq target (send *pr2* :rarm :end-coords :copy-worldcoords))
+;; (setq a (send target :pos))
+;; (send target :locate (float-vector (/ (elt a 0) 1.2) (/ (elt a 1) 1.2) (elt a 2)) :world)
+;; (send *pr2* :rarm :inverse-kinematics target :rotation-axis :t :revert-if-fail t)
 (setq av1 (send *pr2* :angle-vector))
 
 (send *pr2* :r_shoulder_pan_joint :joint-angle arm-move-angle2)
@@ -60,22 +65,13 @@
 (send *ri* :move-trajectory-sequence
   (list (float-vector 0 0 (deg2rad base-move-angle1))
         (float-vector 0 0 (deg2rad base-move-angle2)))
-  (list 3000 3000)
-  :send-action t)
-(send *ri* :angle-vector-sequence (list av1 av2) (list 3000 3000)
+  (list 4000 4000)
+  :send-action t :wait nil)
+(send *ri* :angle-vector-sequence (list av1 av2) (list 4000 4000)
         :rarm-controller)
 
 ;; 移動開始
 (send *ri* :go-pos 0.5 0 0)
-
-;; 握り方を推定
-;; (when *start-holding*
-;;;; 安定しないとき
-;;;; 間に指を入れたそうなとき
-;;;; -> グリッパを開く
-;;;; -> 力が加わったら握り終わったと見なす　握力検知
-;;;; -> 握り返す　接触検知
-;;;; 安定している
 
 ;; 特定の方向に引く
 ;;;; 力センサの値を各基板ごとにだす
