@@ -2,6 +2,7 @@
 
 import actionlib
 import rospy
+import statistics
 from std_msgs.msg import String, UInt8
 from pr2_fingertip_sensors.srv import HandPose, HandPoseResponse
 from pr2_fingertip_sensors.srv import SwitchGripperState
@@ -21,8 +22,8 @@ class HandPoseServer(object):
                                                    Pr2GripperCommandAction)
         self.pr2_gripper_client.wait_for_server()
         rospy.loginfo('found gripper_action')
-        rospy.wait_for_service('/predict/switch_gripper')
-        self.gripper_state_client = rospy.ServiceProxy('/predict/switch_gripper', SwitchGripperState)
+        rospy.wait_for_service('/predict_grip_state/switch_gripper')
+        self.gripper_state_client = rospy.ServiceProxy('/predict_grip_state/switch_gripper', SwitchGripperState)
         self.grip_sub = rospy.Subscriber('/pfs/r_gripper/grip_state', String,
                                     self.grip_state_cb, queue_size=1)
         self.l_touch_sub = rospy.Subscriber('/pfs/r_gripper/l_fingertip/pfs_a_front/touch_state', UInt8,
@@ -71,6 +72,7 @@ class HandPoseServer(object):
         self.count = 0
 
     def timer_cb(self, event):
+        rospy.loginfo('timer {}'.format(self.gripper_state))
         if self.timer_running is False:
             return
         if self.gripper_state == 0:
@@ -110,16 +112,16 @@ class HandPoseServer(object):
 
     def state1(self):
         # 安定して握れているとき
-        if sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 12 and \
+        if sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 8 and \
            statistics.mode(self.grip_state_buf) == 'both_front':
             self.count = 0
             self.hand_pose = 'both_front'
-        elif sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 12 and \
+        elif sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 8 and \
            statistics.mode(self.grip_state_buf) == 'both_back':
             self.count = 0
             self.hand_pose = 'both_back'
         # 手が離されたとき
-        elif sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 12 and \
+        elif sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 18 and \
            statistics.mode(self.grip_state_buf) == 'free':
             self.hand_pose = None
             self.set_state(0)
@@ -160,16 +162,15 @@ class HandPoseServer(object):
 
     def state3(self):
         # 手を離したそうなとき
-        if sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 12 and \
-           statistics.mode(self.grip_state_buf) == 'left_post':
+        if sum(x == 'left_post' for x in self.grip_state_buf) > 6:
             self.hand_pose = None
             self.set_state(2)
-        elif sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 12 and \
-           statistics.mode(self.grip_state_buf) == 'right_post':
+        elif sum(x == 'right_post' for x in self.grip_state_buf) > 6:
             self.hand_pose = None
             self.set_state(2)
 
     def grip_back(self, finger):
+        rospy.loginfo("grip back")
         # 接触するまで握り返す
         i = 0
         while not rospy.is_shutdown():
@@ -179,6 +180,7 @@ class HandPoseServer(object):
                 if 1 in self.touch_state_buf['l_fingertip']:
                     break
                 i += 1
+                rospy.loginfo('{}'.format(i))
                 if i == 30: # グリッパの最小幅
                     break
             if finger == 'right':
@@ -189,19 +191,19 @@ class HandPoseServer(object):
                     break
 
     def grip_state_cb(self, msg):
-        rospy.loginfo("new grip msg: {}".format(msg.data))
+        # rospy.loginfo("new grip msg: {}".format(msg.data))
         self.grip_state_buf.append(msg.data)
         if len(self.grip_state_buf) > 20:
             self.grip_state_buf = self.grip_state_buf[1:]
 
     def touch_state_cb(self, msg, fingertip):
-        rospy.loginfo("new touch msg: {}".format(msg.data))
+        # rospy.loginfo("new touch msg: {}".format(msg.data))
         self.touch_state_buf[fingertip].append(msg.data)
         if len(self.touch_state_buf) > 5:
             self.touch_state_buf[fingertip] = self.touch_state_buf[fingertip][1:]
 
     def force_state_cb(self, msg):
-        rospy.loginfo("new force msg: {}".format(msg.data))
+        # rospy.loginfo("new force msg: {}".format(msg.data))
         self.force_state_buf.append(msg.data)
         if len(self.force_state_buf) > 5:
             self.force_state_buf = self.force_state_buf[1:]
