@@ -147,6 +147,7 @@ class HandPoseServer(object):
         if sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 8 and \
            statistics.mode(self.grip_state_buf) == 'right':
             self.hand_pose = 'right'
+            rospy.loginfo(self.force_state_buf)
             if sum(x=='s' for x in self.force_state_buf) > 2:
                 self.grip_back('right')
                 self.set_state(3)
@@ -177,17 +178,22 @@ class HandPoseServer(object):
             self.move_gripper(0.09-0.0025*i)
             self.r.sleep()
             if finger == 'left':
+                rospy.loginfo(self.touch_state_buf['l_fingertip'])
                 if 1 in self.touch_state_buf['l_fingertip']:
                     break
                 i += 1
                 rospy.loginfo('{}'.format(i))
                 if i == 30: # グリッパの最小幅
+                    rospy.loginfo('limit')
                     break
             if finger == 'right':
+                rospy.loginfo(self.touch_state_buf['r_fingertip'])
                 if 1 in self.touch_state_buf['r_fingertip']:
                     break
                 i += 1
+                rospy.loginfo('{}'.format(i))
                 if i == 26: # グリッパの最小幅
+                    rospy.loginfo('limit')
                     break
 
     def grip_state_cb(self, msg):
@@ -199,7 +205,7 @@ class HandPoseServer(object):
     def touch_state_cb(self, msg, fingertip):
         # rospy.loginfo("new touch msg: {}".format(msg.data))
         self.touch_state_buf[fingertip].append(msg.data)
-        if len(self.touch_state_buf) > 5:
+        if len(self.touch_state_buf[fingertip]) > 5:
             self.touch_state_buf[fingertip] = self.touch_state_buf[fingertip][1:]
 
     def force_state_cb(self, msg):
