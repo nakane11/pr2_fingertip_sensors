@@ -9,7 +9,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import f1_score
 
-filepath = "/home/nakane/Documents/20240112_174323_r_gripper_state2.csv"
+filepath = "/home/nakane/Documents/20240115_172339_r_gripper_state0.csv"
 df = pd.read_csv(filepath)
 columns = ['l_prox_0', 'l_prox_1', 'l_prox_2', 'l_prox_3',
               'l_prox_4', 'l_prox_5', 'l_prox_6', 'l_prox_7', 'l_prox_8', 'l_prox_9',
