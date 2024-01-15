@@ -11,6 +11,8 @@
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1500 :torso-controller 0 :minjerk-interpolation t))
 
 ;; 手を探す
+(send *pr2* :head_tilt_joint :joint-angle 20)
+(send *ri* :angle-vector (send *pr2* :angle-vector) 1500 :head-controller 0 :minjerk-interpolation t))
 (if simulation-mode
   (progn
     (setq target (send *pr2* :rarm :end-coords :copy-worldcoords))
@@ -27,9 +29,13 @@
 (setq req (instance pr2_fingertip_sensors::HandPoseRequest :init))
 (send req :continuous t)
 (setq res (ros::service-call "/hand_pose_server/start_holding" req))
+(ros::ros-info "~A" (send res :handpose))
 ;; 手繋ぎを固定
 (send req :continuous nil)
 (setq res (ros::service-call "/hand_pose_server/start_holding" req))
+(send *pr2* :head_tilt_joint :joint-angle 5)
+(send *ri* :angle-vector (send *pr2* :angle-vector) 1500 :head-controller 0 :minjerk-interpolation t))
+
 
 ;; 現在の繋ぎ方と進行方向に応じて腕と台車を回転させる
 (setq next-base-angle 200) ;;baseの回転量
@@ -72,7 +78,7 @@
 
 (send *ri* :angle-vector-sequence (list av1 av2) (list 4000 4000)
         :rarm-controller)
-
+;; (send *ri* :wait-interpolation)
 ;; 移動開始
 (send *ri* :go-velocity 0.5 0 0)
 
