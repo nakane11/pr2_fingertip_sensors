@@ -16,5 +16,22 @@
 
   <node name="predict_grip_state" pkg="pr2_fingertip_sensors"
         type="predict_grip_state.py" output="screen" />
+
+  <arg name="input_camera_info" value="/kinect_head/rgb/camera_info" />
+  <arg name="input_depth_image" value="/kinect_head/depth_registered/hw_registered/image_rect" />
+  <arg name="input_pose_array" value="/edgetpu_human_pose_estimator/output/poses" />
+
+  <node name="people_pose_2d_to_3d"
+        pkg="jsk_recognition_utils" type="people_pose_2d_to_3d.py"
+        output="screen">
+    <remap from="~input/pose" to="$(arg input_pose_array)" />
+    <remap from="~input/info" to="$(arg input_camera_info)" />
+    <remap from="~input/depth" to="$(arg input_depth_image)" />
+    <remap from="~output/pose" to="$(arg input_pose_array)_3d" />
+    <rosparam subst_value="true">
+      approximate_sync: true
+      queue_size: 100
+    </rosparam>
+  </node>
   
 </launch>
