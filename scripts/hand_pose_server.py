@@ -11,6 +11,7 @@ from pr2_controllers_msgs.msg import Pr2GripperCommandAction, Pr2GripperCommandG
 RATE = 10
 class HandPoseServer(object):
     def __init__(self):
+        rospy.loginfo('11111111111')
         self.grip_state_buf = []
         self.force_state_buf = []
         self.touch_state_buf = {'l_fingertip':[], 'r_fingertip':[]}
@@ -18,9 +19,12 @@ class HandPoseServer(object):
         self.hand_pose = None
         self.r = rospy.Rate(RATE)
         self.timer_running = False
+        rospy.loginfo('222222222222')
         self.pr2_gripper_client = actionlib.SimpleActionClient('/r_gripper_controller/gripper_action',
                                                    Pr2GripperCommandAction)
+        rospy.loginfo('33333333333333333')
         self.pr2_gripper_client.wait_for_server()
+        rospy.loginfo('44444444444444444')
         rospy.loginfo('found gripper_action')
         rospy.wait_for_service('/predict_grip_state/switch_gripper')
         self.gripper_state_client = rospy.ServiceProxy('/predict_grip_state/switch_gripper', SwitchGripperState)
@@ -32,7 +36,8 @@ class HandPoseServer(object):
                                             self.touch_state_cb, "r_fingertip", queue_size=1)        
         self.force_sub = rospy.Subscriber('/pfs/r_gripper/force_state', String,
                                           self.force_state_cb, queue_size=10)
-        s = rospy.Service('~start_holding', HandPose, self.start_holding)
+        start = rospy.Service('~start_holding', HandPose, self.start_holding)
+        stop = rospy.Service('~stop_holding', HandPose, self.stop_holding)
         rospy.Timer(rospy.Duration(0.1), self.timer_cb)
         rospy.loginfo('init end')
 
@@ -44,16 +49,25 @@ class HandPoseServer(object):
         self.pr2_gripper_client.wait_for_result()
 
     def start_holding(self, req):
-        if self.hand_pose is None:
+        self.hand_pose = None
+        if req.reset is True or self.gripper_state is None:
             self.set_state(0)
-            self.timer_running = True
-            while not rospy.is_shutdown():
-                if self.hand_pose is not None:
-                    break
-                self.r.sleep()
+        self.timer_running = True
+        while not rospy.is_shutdown():
+            if self.hand_pose is not None:
+                break
+            self.r.sleep()
         if not req.continuous:
             self.timer_running = False
         return HandPoseResponse(handpose=self.hand_pose)
+
+    def stop_holding(self, req):
+        rospy.loginfo("stop")
+        self.hand_pose = None
+        self.move_gripper(0.09) #グリッパを開く
+        rospy.sleep(2)
+        self.move_gripper(0.0)
+        return HandPoseResponse()
 
     def set_state(self, state):
         rospy.loginfo('{}->{}'.format(self.gripper_state, state))
@@ -72,7 +86,7 @@ class HandPoseServer(object):
         self.count = 0
 
     def timer_cb(self, event):
-        rospy.loginfo('timer {}'.format(self.gripper_state))
+        rospy.loginfo('timer {} {}'.format(self.timer_running, self.gripper_state))
         if self.timer_running is False:
             return
         if self.gripper_state == 0:
@@ -137,19 +151,19 @@ class HandPoseServer(object):
         # 左指を握られたとき
         if sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 8 and \
            statistics.mode(self.grip_state_buf) == 'left':
-            self.hand_pose = 'left'
             if sum(x=='s' for x in self.force_state_buf) > 2:
                 self.grip_back('left')
+                self.hand_pose = 'left'
                 self.set_state(3)
             else:
                 self.count = 0
         # 右指を握られたとき
         if sum(x == statistics.mode(self.grip_state_buf) for x in self.grip_state_buf) > 8 and \
            statistics.mode(self.grip_state_buf) == 'right':
-            self.hand_pose = 'right'
             rospy.loginfo(self.force_state_buf)
             if sum(x=='s' for x in self.force_state_buf) > 2:
                 self.grip_back('right')
+                self.hand_pose = 'right'
                 self.set_state(3)
             else:
                 self.count = 0
