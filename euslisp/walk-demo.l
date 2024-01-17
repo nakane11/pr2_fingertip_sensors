@@ -1,11 +1,11 @@
 (load "package://pr2_fingertip_sensors/euslisp/place-hand.l")
 (ros::roseus-add-srvs "pr2_fingertip_sensors")
 
-(setq simulation-mode t)
 ;; 初期姿勢
 (ros::roseus "demo")
 (pr2-init)
 (ros::wait-for-service "/hand_pose_server/start_holding")
+(ros::wait-for-service "/hand_pose_server/stop_holding")
 (pr2-tuckarm-pose :rarm)
 (send *pr2* :torso_lift_joint :joint-angle 325)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1500 :torso-controller 0 :minjerk-interpolation t))
@@ -16,11 +16,9 @@
 ;; 手を探す
 (send *pr2* :head_tilt_joint :joint-angle 20)
 (send *ri* :angle-vector (send *pr2* :angle-vector) 1500 :head-controller 0 :minjerk-interpolation nil))
-(if simulation-mode
-  (progn
-    (setq target (send *pr2* :rarm :end-coords :copy-worldcoords))
-    (send target :translate (float-vector 900 -30 100) :world))
-  (setq target (search-hand 15)))
+
+(setq target (send *pr2* :rarm :end-coords :copy-worldcoords))
+(send target :translate (float-vector 900 -30 100) :world))
 
 ;; 手の位置に対する相対位置を計算して手を指しだす
 (send target :translate (float-vector -450 -100 -40) :world)
@@ -31,14 +29,12 @@
 (send *ri* :speak "Wanna hold hands so you don't get lost?" :wait t)
 ;; 人からの手繋ぎ
 (setq req (instance pr2_fingertip_sensors::HandPoseRequest :init))
-(send req :continuous t)
+(send req :continuous nil)
+(send req :reset t)
 (setq res (ros::service-call "/hand_pose_server/start_holding" req))
 (ros::ros-info "~A" (send res :handpose))
-;; 手繋ぎを固定
-(send req :continuous nil)
-(setq res (ros::service-call "/hand_pose_server/start_holding" req))
-(send *pr2* :head_tilt_joint :joint-angle 5)
-(send *ri* :angle-vector (send *pr2* :angle-vector) 1500 :head-controller 0 :minjerk-interpolation t))
+
+(unix::sleep 1)
 
 (send *ri* :speak "Hold on, okay? Let's go!" :wait t)
 
@@ -84,13 +80,23 @@
 (send *ri* :angle-vector-sequence (list av1 av2) (list 4000 4000)
         :rarm-controller)
 (send *ri* :wait-interpolation)
-;; 移動開始
-(dotimes (i 180)
-(send *ri* :go-velocity 0.6 0 0)
-(ros::sleep 0.01))
 
-;; 特定の方向に引く
-;;;; 力センサの値を各基板ごとにだす
-;;;; 閾値より大きければ方向を計算してグリッパを回転させながら方向転換
+
+;;開始地点まで移動
+;; (send *ri* :go-pos-unsafe 0.6 0 0)
+;; (setq a (send (send *ri* :state :worldcoords) :copy-worldcoords))
+(setq b (make-coords :pos #f(-39.768 -28797.515 20000.0) :rpy #f(1.907 0.0 0.0)))
+(send *ri* :move-to b)
+
+;;部屋の前まで移動
+(send *ri* :go-pos-unsafe 10.0 -0.2 0)
+(send *ri* :go-pos-unsafe 1.0 -0.2 0)
+(send *ri* :go-pos-unsafe 0.0 0.0 -60)
+(send *ri* :go-pos-unsafe 1.0 0.0 0)
+
+;; (send *ri* :clear-costmap)
 
 (send *ri* :speak "Here is JSK Lab." :wait t)
+
+(setq stop-req (instance pr2_fingertip_sensors::HandPoseRequest :init))
+(setq res (ros::service-call "/hand_pose_server/stop_holding" stop-req))
